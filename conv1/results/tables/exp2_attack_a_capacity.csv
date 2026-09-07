@@ -1,0 +1,5 @@
+,tp,fp,fn,tn,precision,recall,f1_score,false_positive_rate,false_negative_rate,detection_delay_min,detected,delay_steps
+Baseline_1_Threshold,0,0,48,452,0.0,0.0,0.0,0.0,1.0,,False,
+Baseline_2_IsolationForest,0,1,48,451,0.0,0.0,0.0,0.0022,1.0,,False,
+Baseline_3_SemanticOnly,48,0,0,452,1.0,1.0,1.0,0.0,0.0,0.0,True,0
+Proposed_JointEscalation,48,0,0,452,1.0,1.0,1.0,0.0,0.0,0.0,True,0

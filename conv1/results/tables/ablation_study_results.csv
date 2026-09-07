@@ -1,0 +1,6 @@
+,tp,fp,fn,tn,precision,recall,f1_score,false_positive_rate,false_negative_rate,detection_delay_min,detected,delay_steps
+Arm_A_ML_Only,17,428,43,112,0.0382,0.2833,0.0673,0.7926,0.7167,55.0,True,11
+Arm_B_Semantic_Only,0,0,60,540,0.0,0.0,0.0,0.0,1.0,,False,
+Arm_C_Semantic_Temporal,51,0,9,540,1.0,0.85,0.9189,0.0,0.15,20.0,True,4
+Arm_D_Semantic_Structural,0,0,60,540,0.0,0.0,0.0,0.0,1.0,,False,
+Arm_E_Proposed_Full,55,0,5,540,1.0,0.9167,0.9565,0.0,0.0833,20.0,True,4

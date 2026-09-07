@@ -1,0 +1,23 @@
+# IDE and agent settings
+.agents/
+.claude/
+.clinerules/
+.cursor/
+.kiro/
+.openclaw/
+.opencode/
+.qoder/
+.windsurf/
+
+# Python cache & build
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Temporary / lock files
+*.swp
+*.swo
+*~
+.~lock.*
+.env
