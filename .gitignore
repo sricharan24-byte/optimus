@@ -1,23 +1,25 @@
-# IDE and agent settings
-.agents/
-.claude/
-.clinerules/
-.cursor/
-.kiro/
-.openclaw/
-.opencode/
-.qoder/
-.windsurf/
-
-# Python cache & build
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
-*$py.class
-.pytest_cache/
+*.class
 
-# Temporary / lock files
+# Testing & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Environments
+.venv/
+env/
+venv/
+ENV/
+
+# IDE / Editor
+.idea/
+.vscode/
 *.swp
 *.swo
-*~
-.~lock.*
-.env
+
+# OS
+.DS_Store
+Thumbs.db
