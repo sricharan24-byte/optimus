@@ -3,9 +3,9 @@
 import logging
 from contextlib import asynccontextmanager
 from pathlib import Path
-from fastapi import FastAPI, Request, status
+from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.api.routes.health import router as health_router
@@ -75,8 +75,18 @@ def create_app() -> FastAPI:
     app.include_router(security_router, prefix="/api")
     app.include_router(scenarios_router, prefix="/api")
 
-    # Mount Organization Security Portal frontend
+    # Explicit routes for Live Operations & Sensor Monitor
     frontend_dir = Path(__file__).resolve().parent.parent / "frontend"
+
+    @app.get("/operations")
+    @app.get("/operations/")
+    def get_operations_page():
+        operations_html = frontend_dir / "operations.html"
+        if operations_html.exists():
+            return FileResponse(str(operations_html))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Operations page not found")
+
+    # Mount Organization Security Portal frontend
     if frontend_dir.exists():
         app.mount("/", StaticFiles(directory=str(frontend_dir), html=True), name="frontend")
 

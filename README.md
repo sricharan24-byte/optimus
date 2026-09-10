@@ -48,18 +48,19 @@ pip install -r requirements.txt
 
 ### 3. Start the Platform
 Run the platform server:
-`ash
+```bash
 python run.py
-`
+```
 The application will be available at:
 - **Organization Security Portal:** http://127.0.0.1:8000
+- **Live Operations & Sensor Monitor:** http://127.0.0.1:8000/operations
 - **Interactive OpenAPI Documentation:** http://127.0.0.1:8000/docs
 
 ### 4. Running the Test Suite
-Execute the comprehensive automated test suite (73 unit and integration tests):
-`ash
+Execute the comprehensive automated test suite (81 unit and integration tests):
+```bash
 pytest tests/ -v
-`
+```
 
 ---
 

@@ -28,6 +28,29 @@ class WarehouseStepResponse(BaseModel):
     security_analysis: SecurityAnalysisResult = Field(..., description="Actual security pipeline evaluation")
 
 
+class WarehouseObservationHistoryItem(BaseModel):
+    """Historical observation item for warehouse operations."""
+
+    step: int = Field(..., ge=0, description="Simulation step number")
+    timestamp: str = Field(..., description="ISO 8601 UTC timestamp")
+    temperature: float = Field(..., description="Internal cold-storage temperature in °C")
+    humidity: float = Field(..., description="Relative humidity percentage")
+    inventory: float = Field(..., ge=0, description="Recorded inventory in metric tons")
+    free_capacity: float = Field(..., ge=0, description="Available capacity in metric tons")
+    total_capacity: float = Field(..., gt=0, description="Total storage capacity in metric tons")
+    occupancy: float = Field(..., ge=0, le=100, description="Storage occupancy percentage")
+    inbound: float = Field(..., ge=0, description="Inbound shipment tonnage")
+    outbound: float = Field(..., ge=0, description="Outbound shipment tonnage")
+
+
+class WarehouseHistoryResponse(BaseModel):
+    """Collection of recent historical observations from warehouse simulator."""
+
+    warehouse: str = Field(..., description="Warehouse identifier")
+    observations: List[WarehouseObservationHistoryItem] = Field(..., description="List of historical observation records")
+
+
+
 class SecurityStatusResponse(BaseModel):
     """Overall organization security status summary."""
 

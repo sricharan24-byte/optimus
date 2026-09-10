@@ -1,7 +1,9 @@
-"""Warehouse operational telemetry API endpoints."""
-
-from fastapi import APIRouter
-from app.api.schemas import WarehouseStepResponse
+from fastapi import APIRouter, Query
+from app.api.schemas import (
+    WarehouseHistoryResponse,
+    WarehouseObservationHistoryItem,
+    WarehouseStepResponse,
+)
 from app.api.state import app_state
 from app.simulator.models import WarehouseObservation
 
@@ -12,6 +14,41 @@ router = APIRouter(prefix="/warehouse", tags=["Warehouse"])
 def get_current_warehouse_state() -> WarehouseObservation:
     """Retrieve the current real-time cold-storage warehouse telemetry and operational state."""
     return app_state.warehouse.get_current_observation()
+
+
+@router.get("/history", response_model=WarehouseHistoryResponse)
+def get_warehouse_history(
+    limit: int = Query(default=50, ge=1, le=200, description="Maximum number of recent observations to return")
+) -> WarehouseHistoryResponse:
+    """Retrieve historical observations recorded by the warehouse simulator.
+
+    Idempotent read-only endpoint:
+    - Reads existing simulator history
+    - Never advances the simulation
+    - Never modifies state
+    - Never triggers DefenderService
+    """
+    raw_history = app_state.warehouse.get_history(limit=limit)
+    items = [
+        WarehouseObservationHistoryItem(
+            step=obs.step,
+            timestamp=obs.timestamp,
+            temperature=obs.temperature,
+            humidity=obs.humidity,
+            inventory=obs.inventory,
+            free_capacity=obs.free_capacity,
+            total_capacity=obs.capacity,
+            occupancy=obs.occupancy,
+            inbound=obs.inbound,
+            outbound=obs.outbound,
+        )
+        for obs in raw_history
+    ]
+    return WarehouseHistoryResponse(
+        warehouse=app_state.warehouse.warehouse_id,
+        observations=items,
+    )
+
 
 
 @router.post("/step", response_model=WarehouseStepResponse)
