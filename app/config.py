@@ -50,13 +50,10 @@ class AppSettings(BaseSettings):
     TEMPORAL_WINDOW_SIZE: int = 10
     TEMPORAL_DECAY_FACTOR: float = 0.85
 
-    # AI Attacker Settings (Part 2 - disabled by default)
-    ENABLE_AI_ATTACKER: bool = False
-    LLM_PROVIDER: str = "openai"  # "openai" or "anthropic"
-    OPENAI_API_KEY: str = ""
-    ANTHROPIC_API_KEY: str = ""
-    AI_ATTACKER_MODEL: str = "gpt-4o-mini"
+    # Attack Gateway Security Settings
+    ATTACK_GATEWAY_TOKEN: Optional[str] = None
+    GATEWAY_EXPOSE_CLASSIFICATION: bool = False
 
 
-# Singleton instance
 settings = AppSettings()
+

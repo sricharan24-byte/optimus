@@ -110,7 +110,7 @@ class SecurityDecision(BaseModel):
         default_factory=dict,
         description="Scores and statuses from individual pipeline stages",
     )
-    explanation: str = Field(..., description="Comprehensive explanation justifying the security classification")
+    explanation: str = Field(..., description="Explanation of the security classification")
     timestamp: str = Field(
         default_factory=lambda: datetime.now(timezone.utc).isoformat(),
         description="Timestamp of decision generation",

@@ -2,7 +2,7 @@
 
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from app.defender.models import SecurityAlert, SecurityAnalysisResult, SecurityEvent
 from app.simulator.models import WarehouseObservation
@@ -96,3 +96,110 @@ class ScenarioExecutionResponse(BaseModel):
     scenario: str = Field(..., description="Identifier of executed attack scenario")
     observation: WarehouseObservation = Field(..., description="Manipulated observation fed to defender")
     security_analysis: SecurityAnalysisResult = Field(..., description="Real pipeline analysis result")
+
+
+# =====================================================================
+# Attack Gateway Schemas (Part 1 <-> Part 2 Security Boundary)
+# =====================================================================
+
+ALLOWED_ATTACK_TYPES = {
+    "capacity_manipulation",
+    "inventory_manipulation",
+    "sensor_spoofing",
+    "replay_attack",
+    "coordinated_weak",
+    "multi_source",
+}
+
+ALLOWED_TARGETS_BY_TYPE = {
+    "capacity_manipulation": {"free_capacity", "capacity"},
+    "inventory_manipulation": {"inventory"},
+    "sensor_spoofing": {"temperature", "humidity", "environmental_sensors"},
+    "replay_attack": {"telemetry_stream", "state", "observation"},
+    "coordinated_weak": {"multi_metric", "inventory_and_capacity"},
+    "multi_source": {"cross_subsystem", "facility", "multi_source"},
+}
+
+
+class AttackerObservationResponse(BaseModel):
+    """Restricted operational observation response tailored for the external AI attacker."""
+
+    target: str = Field(..., description="Target facility identifier (e.g., 'W01')")
+    inventory: float = Field(..., description="Reported inventory in metric tons")
+    free_capacity: float = Field(..., description="Reported free capacity in metric tons")
+    temperature: float = Field(..., description="Internal warehouse temperature in °C")
+    humidity: float = Field(..., description="Relative humidity percentage")
+    occupancy: float = Field(..., description="Warehouse occupancy percentage")
+
+    model_config = ConfigDict(extra="forbid")
+
+
+class AttackerAttackRequest(BaseModel):
+    """Strict request schema for submitting a controlled attack request through the gateway."""
+
+    attack_type: str = Field(..., description="Whitelisted attack type identifier")
+    target: str = Field(..., description="Allowed target attribute or subsystem")
+    value: Optional[float] = Field(default=None, description="Optional numerical manipulation parameter")
+    objective: str = Field(..., min_length=1, description="Stated objective for audit logging")
+
+    model_config = ConfigDict(extra="forbid")
+
+    @field_validator("attack_type")
+    @classmethod
+    def validate_attack_type(cls, v: str) -> str:
+        clean_type = v.strip().lower()
+        if clean_type not in ALLOWED_ATTACK_TYPES:
+            raise ValueError(
+                f"Attack type '{v}' is not permitted. Whitelisted attack types: {sorted(list(ALLOWED_ATTACK_TYPES))}"
+            )
+        return clean_type
+
+    @field_validator("target")
+    @classmethod
+    def validate_target_format(cls, v: str) -> str:
+        clean_target = v.strip().lower()
+        if not clean_target:
+            raise ValueError("Target parameter must be a non-empty string.")
+        return clean_target
+
+    @model_validator(mode="after")
+    def validate_target_matches_attack_type(self) -> "AttackerAttackRequest":
+        allowed = ALLOWED_TARGETS_BY_TYPE.get(self.attack_type, set())
+        if self.target not in allowed:
+            raise ValueError(
+                f"Target '{self.target}' is invalid for attack type '{self.attack_type}'. "
+                f"Allowed targets: {sorted(list(allowed))}"
+            )
+        return self
+
+
+class AttackerFeedbackResponse(BaseModel):
+    """Restricted feedback returned to the external attacker after execution."""
+
+    attack_id: str = Field(..., description="Unique sequential attack identifier")
+    execution: str = Field(default="accepted", description="Execution status of the attack request")
+    detection: str = Field(..., description="High-level detection outcome: 'DETECTED' or 'UNDETECTED'")
+    classification: Optional[str] = Field(
+        default=None,
+        description="Security classification outcome (shielded unless explicitly configured)",
+    )
+    timestamp: str = Field(
+        default_factory=lambda: datetime.now(timezone.utc).isoformat(),
+        description="UTC timestamp of feedback generation",
+    )
+
+    model_config = ConfigDict(extra="forbid")
+
+
+class AttackerResetResponse(BaseModel):
+    """Response returned upon attacker environment reset."""
+
+    success: bool = Field(default=True)
+    message: str = Field(default="Simulator and DefenderService successfully reset to baseline.")
+    timestamp: str = Field(
+        default_factory=lambda: datetime.now(timezone.utc).isoformat(),
+        description="UTC timestamp of reset",
+    )
+
+    model_config = ConfigDict(extra="forbid")
+

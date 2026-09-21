@@ -153,7 +153,7 @@ class MLDetector:
             return self._fallback_analyze(observation, str(e))
 
     def _fallback_analyze(self, observation: WarehouseObservation, error_msg: Optional[str] = None) -> MLResult:
-        """Robust statistical boundary fallback in case of numerical or model failure."""
+        """Fallback boundary check if model inference fails."""
         anomaly_score = 0.0
         # Check extreme environmental drift
         if observation.temperature < settings.TEMP_MIN_BOUND or observation.temperature > settings.TEMP_MAX_BOUND:

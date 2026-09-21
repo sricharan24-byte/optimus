@@ -1,93 +1,103 @@
-# Organization Information Security Monitoring & Defender Platform
+# Cold-Storage Security Monitor
 
-A real-time security monitoring and multi-layer data integrity verification platform for cyber-physical systems and simulated enterprise facilities (cold-storage warehouse operations).
+Data integrity monitor and sensor telemetry simulator for a cold-storage warehouse (facility W01). Detects tampering in inventory counts, shipment flow, and IoT temperature/humidity feeds.
 
-## Overview
+## System Pipeline
 
-The platform monitors operational and IoT data to detect and flag subtle data integrity attacks, sensor spoofing, replay attacks, and coordinated cross-subsystem manipulations.
-
-### Multi-Layer Security Pipeline
-
-`	ext
+```text
 Warehouse Observation (IoT Telemetry, Inventory, Shipments)
-                        ↓
-            1. Data Preprocessing & Validation
-                        ↓
-           2. ML Multivariate Anomaly Detector
-                        ↓
-         3. Semantic Verification Engine (C1, C2, C3)
-                        ↓
-           4. Temporal Analysis Engine (Decay & Persistence)
-                        ↓
-         5. Structural Analysis Engine (Knowledge Graph)
-                        ↓
-           6. Joint Security Decision & Alerting
-`
+                        |
+            1. Preprocessing and Validation
+                        |
+            2. ML Anomaly Detection (Isolation Forest)
+                        |
+            3. Semantic Invariant Verification (C1, C2, C3)
+                        |
+            4. Temporal Trend and Decay Tracking
+                        |
+            5. Structural Graph Correlation
+                        |
+            6. Joint Security Decision and Alerting
+```
 
-- **Semantic Invariants Checked:**
-  - **C1 (Capacity Consistency):** Inventory + Free Capacity = Total Capacity
-  - **C2 (Inventory Flow Consistency):** Delta Inventory = Inbound - Outbound
-  - **C3 (Historical Operating Envelope):** Telemetry (temperature, humidity) bounded within historical operating standards.
-- **Temporal Engine:** Exponentially decayed violation scoring (0.85^k) and persistence tracking over sliding windows.
-- **Structural Engine:** Knowledge-graph based dependency modeling across sensor, ledger, and physical domains to detect coordinated multi-vector tampering.
-- **Joint Decision Engine:** Weighted synthesis (0.50 * Semantic + 0.20 * Temporal + 0.15 * Structural + 0.15 * ML) producing definitive risk classifications: NORMAL, LOW, SUSPICIOUS, POTENTIAL_ATTACK, and COORDINATED_ATTACK.
+### Invariants Checked
+- **C1 (Capacity):** inventory + free_capacity == total_capacity
+- **C2 (Inventory Flow):** current_inventory == previous_inventory + inbound - outbound
+- **C3 (Historical Bounds):** Temperature (1.0 to 7.0 deg C) and humidity (60% to 85%) inside normal operating range.
 
 ---
 
 ## Quick Start
 
-### 1. Prerequisites
+### 1. Requirements
 - Python 3.10+
 - pip
 
-### 2. Installation
-Clone the repository and install dependencies:
-`ash
+### 2. Install Dependencies
+```bash
 pip install -r requirements.txt
-`
+```
 
-### 3. Start the Platform
-Run the platform server:
+### 3. Run the Service
 ```bash
 python run.py
 ```
-The application will be available at:
-- **Organization Security Portal:** http://127.0.0.1:8000
-- **Live Operations & Sensor Monitor:** http://127.0.0.1:8000/operations
-- **Interactive OpenAPI Documentation:** http://127.0.0.1:8000/docs
 
-### 4. Running the Test Suite
-Execute the comprehensive automated test suite (81 unit and integration tests):
+Endpoints:
+- **Security Portal (Part 1 Defender):** http://127.0.0.1:8000
+- **Operations Monitor (Part 1 Raw Telemetry):** http://127.0.0.1:8000/operations
+- **Attack Gateway:** http://127.0.0.1:8000/api/attacker/*
+- **Defender API Docs:** http://127.0.0.1:8000/docs
+
+### 4. Run Part 2 (AI Attacker Application)
+In a separate terminal:
+```bash
+python run_attacker.py --port 8001
+```
+
+Endpoints:
+- **AI Attacker Console (Part 2):** http://127.0.0.1:8001
+- **Attacker API Docs:** http://127.0.0.1:8001/docs
+
+### 5. Run Tests
 ```bash
 pytest tests/ -v
 ```
 
 ---
 
-## Controlled Attack Demonstration
+## Controlled Attack Scenarios
 
-The portal and API feature deterministic, controlled attack scenarios for evaluation:
-- **Capacity Manipulation:** Desynchronizes inventory and reported free space (C1 violation).
-- **Inventory Manipulation:** Spoofs shipment transfers without ledger matching (C2 violation).
-- **Sensor Spoofing:** Injects out-of-envelope temperature excursions (C3 violation).
-- **Replay Attack:** Replays static telemetry across changing operational steps.
-- **Coordinated Weak Manipulation:** Sub-threshold deviations across multiple variables designed to bypass individual univariate thresholds.
-- **Multi-Source Manipulation:** Cross-domain manipulation activating structural graph correlation.
+Deterministic attack scenarios exposed via the Attack Gateway:
+- capacity_manipulation: Desynchronizes inventory and free capacity (breaks C1).
+- inventory_manipulation: Alters inventory without shipment ledger records (breaks C2).
+- sensor_spoofing: Forces temperature/humidity excursions outside operating limits (breaks C3).
+- replay: Replays older observations into a changed warehouse state.
+- coordinated_weak: Sub-threshold coordinated drift across variables.
+- multi_source: Corrupts both physical telemetry and ledger records simultaneously.
 
 ---
 
 ## Project Structure
 
-`	ext
+```text
 .
-├── app/
-│   ├── api/             # FastAPI REST endpoints and routing
-│   ├── defender/        # Multi-layer security pipeline (ML, Semantic, Temporal, Structural, Decision)
-│   ├── frontend/        # Real-time Organization Security Portal (HTML, CSS, JS)
-│   ├── simulator/       # Cold-storage warehouse simulation and telemetry engine
-│   └── utils/           # Configuration and logging utilities
-├── tests/               # 73 automated unit and integration tests
-├── requirements.txt     # Production and testing dependencies
-├── run.py               # Entry point script
-└── README.md            # Platform documentation
-`
+├── app/                 # Part 1: Organization Defender Platform
+│   ├── api/             # FastAPI REST endpoints, state, and Attack Gateway
+│   ├── defender/        # Security engines (ML, semantic, temporal, structural, decision)
+│   ├── frontend/        # Defender and Operations UI dashboards (HTML, CSS, JS)
+│   ├── simulator/       # Cold-storage warehouse and telemetry simulator
+│   └── config.py        # Central configuration settings
+├── attacker_app/        # Part 2: Isolated AI Attacker Application
+│   ├── gateway_client.py# Egress client restricted strictly to Attack Gateway
+│   ├── planner.py       # Deterministic and LLM-based strategy planning
+│   ├── providers.py     # LLM provider integration (OpenAI, Anthropic, Mock)
+│   ├── validator.py     # Proposal bounds and whitelist validation
+│   ├── schemas.py       # Pydantic data models for proposals and experiments
+│   └── static/          # AI Attacker Console interface
+├── tests/               # 136 automated unit, integration, and E2E tests
+├── requirements.txt     # Dependencies
+├── run.py               # Part 1 entrypoint
+├── run_attacker.py      # Part 2 entrypoint
+└── README.md            # Documentation
+```

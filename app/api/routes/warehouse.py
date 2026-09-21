@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Query
 from app.api.schemas import (
+    ResetResponse,
     WarehouseHistoryResponse,
     WarehouseObservationHistoryItem,
     WarehouseStepResponse,
@@ -50,7 +51,6 @@ def get_warehouse_history(
     )
 
 
-
 @router.post("/step", response_model=WarehouseStepResponse)
 def step_warehouse_simulation() -> WarehouseStepResponse:
     """Advance the warehouse simulation by one discrete step and evaluate through DefenderService.
@@ -63,4 +63,14 @@ def step_warehouse_simulation() -> WarehouseStepResponse:
     return WarehouseStepResponse(
         observation=observation,
         security_analysis=security_analysis,
+    )
+
+
+@router.post("/reset", response_model=ResetResponse)
+def reset_warehouse_simulation() -> ResetResponse:
+    """Reset the warehouse simulator and operational history to baseline state."""
+    app_state.reset()
+    return ResetResponse(
+        success=True,
+        message="Warehouse simulation successfully reset to initial baseline state.",
     )

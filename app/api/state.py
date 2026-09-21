@@ -13,7 +13,7 @@ class AppState:
     """Manages runtime instances of ColdStorageWarehouse and DefenderService with thread safety."""
 
     def __init__(self, seed: Optional[int] = 42):
-        self._lock = threading.Lock()
+        self._lock = threading.RLock()
         self.warehouse = ColdStorageWarehouse(seed=seed)
         self.defender = DefenderService()
         # Analyze baseline observation so DefenderService has initial state

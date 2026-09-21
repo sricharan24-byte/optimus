@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
+from app.api.routes.attacker import router as attacker_router
 from app.api.routes.health import router as health_router
 from app.api.routes.scenarios import router as scenarios_router
 from app.api.routes.security import router as security_router
@@ -74,6 +75,7 @@ def create_app() -> FastAPI:
     app.include_router(warehouse_router, prefix="/api")
     app.include_router(security_router, prefix="/api")
     app.include_router(scenarios_router, prefix="/api")
+    app.include_router(attacker_router, prefix="/api")
 
     # Explicit routes for Live Operations & Sensor Monitor
     frontend_dir = Path(__file__).resolve().parent.parent / "frontend"
