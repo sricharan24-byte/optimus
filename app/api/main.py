@@ -117,14 +117,6 @@ def create_app() -> FastAPI:
             return FileResponse(str(simulator_html))
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Attack Simulator Portal not found")
 
-    # Demo Sandbox Portal
-    @app.get("/demo")
-    @app.get("/demo/")
-    def get_demo_page():
-        demo_html = frontend_dir / "demo.html"
-        if demo_html.exists():
-            return FileResponse(str(demo_html))
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Demo Sandbox page not found")
 
     # Favicon routes (SVG vector icon)
     @app.get("/favicon.ico")

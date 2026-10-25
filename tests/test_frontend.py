@@ -191,18 +191,6 @@ class TestThreePortalArchitecture:
         assert "risk_score" in data
         assert data["latency_ms"] >= 0
 
-    def test_demo_portal_route(self, client):
-        """Verify GET /demo serves the design demo sandbox with favicon and no VIT CSBS badge."""
-        resp = client.get("/demo")
-        assert resp.status_code == 200
-        assert "text/html" in resp.headers.get("content-type", "")
-        assert "Demo Sandbox" in resp.text
-        assert "demo.css" in resp.text
-        assert "favicon.svg" in resp.text
-        assert "VIT CSBS" not in resp.text
-        assert 'id="demo-telemetry-grid"' in resp.text
-        assert 'id="demo-verdict-banner"' in resp.text
-
     def test_favicon_route(self, client):
         """Verify GET /favicon.svg and /favicon.ico return SVG image content with HTTP 200."""
         for path in ["/favicon.svg", "/favicon.ico"]:

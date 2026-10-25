@@ -5,22 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <title>Defender Portal — Cold-Storage Security Monitor</title>
-  <link rel="stylesheet" href="/css/style.css?v=20261025_04">
+  <link rel="stylesheet" href="/css/style.css?v=20261025_05">
 </head>
 <body>
 
-  <!-- Top Header Navigation -->
+  <!-- Top Application Header -->
   <header class="portal-header">
     <div>
       <div class="brand-title">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
         </svg>
         Cold-Storage Security Monitor
-        <span class="badge badge-normal" style="font-size: 0.65rem; margin-left: 0.5rem;">VIT CSBS &bull; Team 12</span>
       </div>
       <div class="brand-subtitle">
-        Portal 1: Defender Security Analysis &bull; Real Environmental Telemetry (Hohenheim Zenodo 15130001)
+        Portal 1: Defender Security Analysis &bull; Real Recorded Baseline (Hohenheim Zenodo 15130001)
       </div>
     </div>
 
@@ -36,171 +35,179 @@
   <!-- Three-Portal Navigation Bar -->
   <nav class="portal-nav">
     <a href="/" class="nav-tab active">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
       Defender Portal
     </a>
     <a href="/transmitter" class="nav-tab">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M16.2 7.8a6 6 0 0 1 0 8.4m-8.4-8.4a6 6 0 0 0 0 8.4"/></svg>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M16.2 7.8a6 6 0 0 1 0 8.4m-8.4-8.4a6 6 0 0 0 0 8.4"/></svg>
       Sensor Transmitter
     </a>
     <a href="/simulator" class="nav-tab">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
       Attack Simulator
     </a>
   </nav>
 
   <main class="container">
 
-    <!-- Connection Warning Banner (Shown if API Unreachable) -->
+    <!-- Connection Warning Banner (Shown if Backend API is Unreachable) -->
     <div id="connection-banner" class="connection-banner hidden">
       <div>
         <strong>Connection Warning:</strong> Unable to communicate with security backend service. Retrying in background...
       </div>
-      <button class="btn" onclick="refreshDefenderState()">Retry Now</button>
+      <button class="btn btn-secondary btn-sm" onclick="refreshDefenderState()">Retry Now</button>
     </div>
 
-    <!-- Incoming Telemetry Ingestion Status Card -->
-    <section class="panel-card" style="padding: 0.85rem 1.25rem;">
-      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
-        <div style="display: flex; align-items: center; gap: 0.75rem;">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+    <!-- 1. Incoming Observation Ingestion Status -->
+    <section class="panel">
+      <div class="panel-header">
+        <div style="display: flex; align-items: center; gap: var(--space-3);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
           <div>
-            <div style="font-size: 0.85rem; font-weight: 700; color: #fff;">
-              Incoming Observation Ingestion &bull; <span id="def-observation-id" style="font-family: var(--font-mono); color: #38bdf8;">OBS-000000</span>
+            <div style="font-size: 14px; font-weight: 600; color: var(--color-text-primary);">
+              Incoming Observation &bull; <span id="def-observation-id" class="mono text-accent" style="color: var(--color-accent);">OBS-000000</span>
             </div>
-            <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.15rem;">
-              Source Provenance: <span id="def-obs-source" class="badge badge-normal" style="font-size: 0.65rem;">University of Hohenheim (Zenodo 15130001)</span>
+            <div class="panel-subtitle">
+              Source Provenance: <span id="def-obs-source" class="badge badge-normal">University of Hohenheim (Zenodo 15130001)</span>
             </div>
           </div>
         </div>
 
-        <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
-          <span id="def-spatial-delta" class="badge badge-normal" style="font-size: 0.72rem;">&Delta;T: 0.0&deg;C</span>
-          <span id="def-active-sensors" class="badge badge-normal" style="font-size: 0.72rem;">6 / 9 Active</span>
-          <span id="def-obs-timestamp" class="time-display" style="font-size: 0.8rem; color: #fff; font-weight: 600;">--:--:-- UTC</span>
+        <div style="display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap;">
+          <span id="def-spatial-delta" class="badge badge-normal">&Delta;T: 0.0&deg;C</span>
+          <span id="def-active-sensors" class="badge badge-normal">6 / 9 Active</span>
+          <span id="def-obs-timestamp" class="time-display">--:--:-- UTC</span>
         </div>
       </div>
     </section>
 
-    <!-- Received 9-Sensor DHT22 Telemetry Array -->
-    <section class="panel-card" style="padding: 0.85rem 1.25rem;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
-        <span style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.05em;">
-          Received Sensor Array Telemetry (Defender Input Channel)
-        </span>
-        <span style="font-size: 0.7rem; color: var(--text-muted);">DHT22 Multi-Zone Matrix &bull; Operating Bounds: [0.0&deg;C, 14.0&deg;C], [65%, 95%]</span>
+    <!-- 2. Received 9-Sensor DHT22 Telemetry Array -->
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <h2 class="panel-title">Received Sensor Array Telemetry</h2>
+          <div class="panel-subtitle">DHT22 Multi-Zone Matrix &bull; Operating Bounds: [0.0&deg;C, 14.0&deg;C], [65%, 95%] RH</div>
+        </div>
+        <span class="badge badge-low">Defender Ingestion Channel</span>
       </div>
       <div id="sensor-matrix" class="sensor-matrix-grid">
         <div class="sensor-card"><span>Ingesting Telemetry Channel...</span></div>
       </div>
     </section>
 
-    <!-- Primary Security Decision Verdict Banner -->
-    <section id="joint-decision-banner" class="decision-banner">
-      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
-        <div style="display: flex; align-items: center; gap: 0.75rem;">
-          <span style="font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.04em;">Joint Classification:</span>
+    <!-- 3. Primary Security Decision Verdict Banner -->
+    <section id="joint-decision-banner" class="decision-banner verdict-normal">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-3);">
+        <div class="verdict-display">
+          <span style="font-size: 12px; font-weight: 600; text-transform: uppercase; color: var(--color-text-secondary); letter-spacing: 0.04em;">Joint Classification:</span>
           <span id="joint-classification"><span class="badge badge-normal">NORMAL</span></span>
         </div>
-        <div style="font-family: var(--font-mono); font-size: 0.85rem; display: flex; gap: 1.25rem;">
-          <span id="joint-risk">Risk Score: 0.000</span>
-          <strong id="joint-integrity" style="color: #fff;">Integrity: 100.0%</strong>
+        <div style="display: flex; gap: var(--space-5); align-items: baseline;">
+          <div class="risk-metric-box">
+            <span id="joint-risk" class="mono" style="font-size: 13px; color: var(--color-text-secondary);">Risk Score: 0.000</span>
+          </div>
+          <div class="risk-metric-box">
+            <strong id="joint-integrity" class="mono" style="font-size: 14px; color: var(--color-text-primary);">Integrity: 100.0%</strong>
+          </div>
         </div>
       </div>
-      <div id="joint-explanation" style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">
+      <div id="joint-explanation" style="font-size: 13px; color: var(--color-text-secondary); margin-top: var(--space-2); line-height: 1.45;">
         Operational records, IoT telemetry, and multi-sensor readings are internally consistent.
       </div>
     </section>
 
-    <!-- Five Explainable Detection Layers Grid -->
-    <div class="analysis-grid">
+    <!-- 4. Five Explainable Detection Layers Grid -->
+    <div class="pipeline-grid">
 
       <!-- Layer 1: ML IsolationForest Outlier Detector -->
-      <div class="analysis-card">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <strong style="font-size: 0.85rem;">1. Machine Learning Outlier Detector</strong>
+      <div class="stage-card">
+        <div class="stage-header">
+          <div class="stage-name">1. ML Outlier Detector</div>
           <span id="ml-status"><span class="badge badge-normal">NORMAL</span></span>
         </div>
-        <div style="font-size: 0.8rem; display: flex; flex-direction: column; gap: 0.25rem; margin-top: 0.35rem;">
-          <div><strong>Anomaly Score:</strong> <span id="ml-score" style="font-family: var(--font-mono);">0.000</span> (Threshold: 0.60)</div>
-          <div><strong>Anomaly Status:</strong> <span id="ml-flag">FALSE (Within Normal Bounds)</span></div>
-          <div><strong>Model Mode:</strong> <span id="ml-mode" style="color: var(--text-secondary);">environmental_multisensor</span></div>
-          <div style="color: var(--text-muted); font-size: 0.72rem;">Evaluated Features: <span id="ml-features">temperature, humidity, delta_t, delta_h, std_t</span></div>
+        <div class="stage-body">
+          <div>Anomaly Score: <span id="ml-score" class="mono" style="color: var(--color-text-primary); font-weight: 600;">0.000</span> (Threshold: 0.60)</div>
+          <div>Anomaly Status: <span id="ml-flag" style="color: var(--color-text-primary);">FALSE (Normal)</span></div>
+          <div>Model Mode: <span id="ml-mode" class="mono" style="color: var(--color-text-secondary);">environmental_multisensor</span></div>
+          <div style="color: var(--color-text-muted); font-size: 11px;">Features: <span id="ml-features">temperature, humidity, delta_t, delta_h, std_t</span></div>
         </div>
       </div>
 
       <!-- Layer 2: Temporal Analysis Engine -->
-      <div class="analysis-card">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <strong style="font-size: 0.85rem;">2. Temporal Continuity &amp; Recurrence</strong>
+      <div class="stage-card">
+        <div class="stage-header">
+          <div class="stage-name">2. Temporal Continuity</div>
           <span id="temp-status"><span class="badge badge-normal">STABLE</span></span>
         </div>
-        <div style="font-size: 0.8rem; display: flex; flex-direction: column; gap: 0.25rem; margin-top: 0.35rem;">
-          <div><strong>Temporal Anomaly Score:</strong> <span id="temp-score" style="font-family: var(--font-mono);">0.00</span></div>
-          <div><strong>Consecutive Persistence:</strong> <span id="temp-persistence">0 consecutive intervals</span></div>
-          <div><strong>Recurrence (10-Step Window):</strong> <span id="temp-recurrence">0 / 10 observations</span></div>
-          <div style="color: var(--text-muted); font-size: 0.72rem;">EWMA half-life decay, telemetry freezing, and drift tracking.</div>
+        <div class="stage-body">
+          <div>Anomaly Score: <span id="temp-score" class="mono" style="color: var(--color-text-primary); font-weight: 600;">0.00</span></div>
+          <div>Persistence: <span id="temp-persistence" style="color: var(--color-text-primary);">0 consecutive intervals</span></div>
+          <div>Recurrence (10-Step): <span id="temp-recurrence" style="color: var(--color-text-primary);">0 / 10 observations</span></div>
+          <div style="color: var(--color-text-muted); font-size: 11px;">EWMA half-life decay, telemetry freezing, and drift tracking.</div>
         </div>
       </div>
 
-      <!-- Layer 3: Semantic Constraints Breakdown -->
-      <div class="analysis-card" style="grid-column: span 2;">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <strong style="font-size: 0.85rem;">3. Semantic Invariant Verification (Physical &amp; Operational Laws)</strong>
+      <!-- Layer 3: Semantic Invariants Verification -->
+      <div class="stage-card" style="grid-column: span 2;">
+        <div class="stage-header">
+          <div class="stage-name">3. Semantic Invariant Verification</div>
           <span id="sem-status"><span class="badge badge-normal">NORMAL</span></span>
         </div>
-        <div style="font-size: 0.8rem; margin-top: 0.25rem; margin-bottom: 0.4rem;">
-          <strong>Composite Semantic Score:</strong> <span id="sem-score" style="font-family: var(--font-mono);">0.00</span>
-        </div>
+        <div class="stage-body">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
+            <span>Composite Semantic Score: <span id="sem-score" class="mono" style="color: var(--color-text-primary); font-weight: 600;">0.00</span></span>
+            <span style="font-size: 11px; color: var(--color-text-muted);">C1/C2 N/A in Hohenheim Mode</span>
+          </div>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 0.75rem;">
-          <div id="c1-block" class="constraint-block">Loading C1...</div>
-          <div id="c2-block" class="constraint-block">Loading C2...</div>
-          <div id="c3-block" class="constraint-block">Loading C3...</div>
-          <div id="c4-block" class="constraint-block">Loading C4...</div>
+          <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2);">
+            <div id="c1-block" class="constraint-item">Loading C1...</div>
+            <div id="c2-block" class="constraint-item">Loading C2...</div>
+            <div id="c3-block" class="constraint-item">Loading C3...</div>
+            <div id="c4-block" class="constraint-item">Loading C4...</div>
+          </div>
         </div>
       </div>
 
       <!-- Layer 4: Structural Graph Correlation -->
-      <div class="analysis-card">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <strong style="font-size: 0.85rem;">4. Structural Graph Topology</strong>
+      <div class="stage-card">
+        <div class="stage-header">
+          <div class="stage-name">4. Structural Graph Consensus</div>
           <span id="struct-status"><span class="badge badge-normal">ISOLATED</span></span>
         </div>
-        <div style="font-size: 0.8rem; display: flex; flex-direction: column; gap: 0.25rem; margin-top: 0.35rem;">
-          <div><strong>Structural Risk Score:</strong> <span id="struct-score" style="font-family: var(--font-mono);">0.00</span></div>
-          <div><strong>Implicated Entities:</strong> <span id="struct-nodes" style="color: var(--text-secondary);">None (Isolated)</span></div>
-          <div><strong>Coupled Subsystems:</strong> <span id="struct-edges" style="color: var(--text-secondary);">None</span></div>
+        <div class="stage-body">
+          <div>Structural Score: <span id="struct-score" class="mono" style="color: var(--color-text-primary); font-weight: 600;">0.00</span></div>
+          <div>Implicated Nodes: <span id="struct-nodes" style="color: var(--color-text-primary);">None (Isolated)</span></div>
+          <div>Coupled Subsystems: <span id="struct-edges" style="color: var(--color-text-secondary);">None</span></div>
         </div>
       </div>
 
-      <!-- Layer 5: Cryptographic Audit Chain -->
-      <div class="analysis-card">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <strong style="font-size: 0.85rem;">5. Cryptographic SHA-256 Audit Chain</strong>
-          <span id="kpi-audit-chain"><span class="badge badge-normal">SHA-256 INTACT</span></span>
+      <!-- Layer 5: Cryptographic SHA-256 Audit Chain -->
+      <div class="stage-card">
+        <div class="stage-header">
+          <div class="stage-name">5. SHA-256 Audit Chain</div>
+          <span id="kpi-audit-chain"><span class="badge badge-normal">INTACT</span></span>
         </div>
-        <div style="font-size: 0.8rem; display: flex; flex-direction: column; gap: 0.25rem; margin-top: 0.35rem;">
-          <div><strong>Chain Verification:</strong> <span id="audit-valid-status" style="color: #10b981; font-weight: 700;">VERIFIED INTACT</span></div>
-          <div><strong>Verified Events:</strong> <span id="audit-events-count">--</span></div>
-          <div style="color: var(--text-muted); font-size: 0.72rem; word-break: break-all;">Latest Block Hash: <span id="audit-latest-hash" style="font-family: var(--font-mono);">--</span></div>
+        <div class="stage-body">
+          <div>Chain Status: <span id="audit-valid-status" style="color: var(--color-success); font-weight: 600;">VERIFIED INTACT</span></div>
+          <div>Verified Events: <span id="audit-events-count" class="mono" style="color: var(--color-text-primary);">--</span></div>
+          <div style="color: var(--color-text-muted); font-size: 11px; word-break: break-all;">Latest Hash: <span id="audit-latest-hash" class="mono">--</span></div>
         </div>
       </div>
 
     </div>
 
-    <!-- Expandable Raw Evidence JSON Panel -->
-    <div class="expandable-panel">
-      <div class="expandable-header" onclick="toggleRawEvidence()">
-        <span>Raw Technical Evidence Payload (JSON)</span>
-        <span id="raw-evidence-toggle-icon">&plus; Expand</span>
+    <!-- 5. Expandable Raw Evidence JSON Panel -->
+    <section class="panel">
+      <div class="panel-header" onclick="toggleRawEvidence()" style="cursor: pointer; user-select: none; margin-bottom: 0;">
+        <h3 class="panel-title" style="font-size: 14px;">Raw Technical Evidence Payload (JSON)</h3>
+        <span id="raw-evidence-toggle-icon" class="badge badge-secondary" style="background: var(--color-surface-raised); border: 1px solid var(--color-border);">&plus; Expand</span>
       </div>
-      <div id="expandable-raw-body" class="expandable-body" style="display: none;">
-        <pre id="raw-evidence-json">No observation evaluated yet.</pre>
+      <div id="expandable-raw-body" style="display: none; margin-top: var(--space-3); border-top: 1px solid var(--color-border); padding-top: var(--space-3);">
+        <pre id="raw-evidence-json" style="background: var(--color-background); border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: var(--space-3); font-size: 12px; color: var(--color-text-secondary); max-height: 280px; overflow-y: auto;">No observation evaluated yet.</pre>
       </div>
-    </div>
+    </section>
 
-    <!-- Hidden compatibility anchors for test suite queries -->
+    <!-- Hidden compatibility hooks for automated test contract assertions -->
     <div style="display: none;" aria-hidden="true">
       <div>Organization Security Portal</div>
       <div class="kpi-grid">Security Overview</div>
@@ -302,20 +309,20 @@
 
   </main>
 
-  <footer class="portal-footer">
-    <div class="container" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; padding: 0.5rem 2rem;">
-      <div>Cold-Storage Security Monitor &bull; Academic CSBS Team 12 (VIT) &bull; Defender Security Analysis Portal</div>
-      <div style="display: flex; gap: 1.5rem; align-items: center;">
-        <a href="/transmitter" style="color: var(--text-secondary); text-decoration: none;">Sensor Transmitter</a>
-        <a href="/simulator" style="color: var(--text-secondary); text-decoration: none;">Attack Simulator</a>
-        <a href="/api/docs" target="_blank" style="color: var(--text-secondary); text-decoration: none;">API Docs</a>
+  <!-- Clean Application Footer -->
+  <footer style="background-color: var(--color-surface); border-top: 1px solid var(--color-border); padding: var(--space-3) var(--space-5); margin-top: var(--space-6);">
+    <div style="max-width: 1440px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-3); font-size: 12px; color: var(--color-text-secondary);">
+      <div>Cold-Storage Security Monitor &bull; Defender Security Analysis Portal</div>
+      <div style="display: flex; gap: var(--space-4); align-items: center;">
+        <a href="/transmitter" style="color: var(--color-text-secondary);">Sensor Transmitter</a>
+        <a href="/simulator" style="color: var(--color-text-secondary);">Attack Simulator</a>
+        <a href="/api/docs" target="_blank" style="color: var(--color-text-secondary);">API Docs</a>
       </div>
     </div>
   </footer>
 
-  <script src="/js/shared.js?v=20261025_04"></script>
-  <script src="/js/defender.js?v=20261025_04"></script>
-  <!-- Backward-compatibility wrapper for legacy test assertions -->
-  <script src="/js/app.js?v=20261025_04"></script>
+  <script src="/js/shared.js?v=20261025_05"></script>
+  <script src="/js/defender.js?v=20261025_05"></script>
+  <script src="/js/app.js?v=20261025_05"></script>
 </body>
 </html>
