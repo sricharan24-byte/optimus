@@ -5,202 +5,186 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <title>Defender Portal — Cold-Storage Security Monitor</title>
-  <link rel="stylesheet" href="/css/style.css?v=20261025_05">
+  <link rel="stylesheet" href="/css/style.css?v=20261025_06">
 </head>
 <body>
 
-  <!-- Top Application Header -->
+  <!-- Unified Top Navigation Bar (Single 44px Horizontal Bar) -->
   <header class="portal-header">
-    <div>
-      <div class="brand-title">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <div class="header-brand">
+      <a href="/" class="brand-title" style="text-decoration: none;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
         </svg>
         Cold-Storage Security Monitor
-      </div>
-      <div class="brand-subtitle">
-        Portal 1: Defender Security Analysis &bull; Real Recorded Baseline (Hohenheim Zenodo 15130001)
-      </div>
+      </a>
+
+      <!-- Three-Portal Navigation Links -->
+      <nav class="portal-nav">
+        <a href="/" class="nav-tab active">Defender Portal</a>
+        <a href="/transmitter" class="nav-tab">Sensor Transmitter</a>
+        <a href="/simulator" class="nav-tab">Attack Simulator</a>
+      </nav>
     </div>
 
-    <div class="header-status-group">
+    <div class="header-status">
       <div class="indicator">
         <span id="health-dot" class="status-dot"></span>
-        <span id="kpi-backend-health">DEFENDER ONLINE</span>
+        <span id="kpi-backend-health">System Online</span>
       </div>
-      <div id="current-time" class="time-display">--:--:-- UTC</div>
     </div>
   </header>
 
-  <!-- Three-Portal Navigation Bar -->
-  <nav class="portal-nav">
-    <a href="/" class="nav-tab active">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-      Defender Portal
-    </a>
-    <a href="/transmitter" class="nav-tab">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M16.2 7.8a6 6 0 0 1 0 8.4m-8.4-8.4a6 6 0 0 0 0 8.4"/></svg>
-      Sensor Transmitter
-    </a>
-    <a href="/simulator" class="nav-tab">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-      Attack Simulator
-    </a>
-  </nav>
-
   <main class="container">
 
-    <!-- Connection Warning Banner (Shown if Backend API is Unreachable) -->
+    <!-- Connection Alert Banner (Shown if API Unreachable) -->
     <div id="connection-banner" class="connection-banner hidden">
-      <div>
-        <strong>Connection Warning:</strong> Unable to communicate with security backend service. Retrying in background...
-      </div>
-      <button class="btn btn-secondary btn-sm" onclick="refreshDefenderState()">Retry Now</button>
+      <div><strong>Connection alert:</strong> Unable to communicate with security backend service. Retrying in background.</div>
+      <button class="btn btn-secondary btn-sm" onclick="refreshDefenderState()">Retry</button>
     </div>
 
-    <!-- 1. Incoming Observation Ingestion Status -->
+    <!-- 1. Received Observation Context Header -->
     <section class="panel">
-      <div class="panel-header">
-        <div style="display: flex; align-items: center; gap: var(--space-3);">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-          <div>
-            <div style="font-size: 14px; font-weight: 600; color: var(--color-text-primary);">
-              Incoming Observation &bull; <span id="def-observation-id" class="mono text-accent" style="color: var(--color-accent);">OBS-000000</span>
-            </div>
-            <div class="panel-subtitle">
-              Source Provenance: <span id="def-obs-source" class="badge badge-normal">University of Hohenheim (Zenodo 15130001)</span>
-            </div>
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-3);">
+        <div>
+          <div style="font-size: 14px; font-weight: 600; color: var(--color-text-primary);">
+            Latest Received Observation &bull; <span id="def-observation-id" class="mono text-accent">OBS-000000</span>
+          </div>
+          <div class="section-meta" style="margin-top: 2px;">
+            Provenance: <span id="def-obs-source" class="badge badge-normal">University of Hohenheim (Zenodo 15130001)</span>
           </div>
         </div>
 
         <div style="display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap;">
           <span id="def-spatial-delta" class="badge badge-normal">&Delta;T: 0.0&deg;C</span>
           <span id="def-active-sensors" class="badge badge-normal">6 / 9 Active</span>
-          <span id="def-obs-timestamp" class="time-display">--:--:-- UTC</span>
+          <span id="def-obs-timestamp" class="mono" style="font-size: 12px; color: var(--color-text-secondary); background: var(--color-surface-raised); padding: 2px 6px; border-radius: 2px; border: 1px solid var(--color-border);">--:--:-- UTC</span>
         </div>
       </div>
     </section>
 
-    <!-- 2. Received 9-Sensor DHT22 Telemetry Array -->
+    <!-- 2. Sensor Telemetry Array (Authentic 9-Channel Matrix) -->
     <section class="panel">
-      <div class="panel-header">
+      <div class="section-header">
         <div>
-          <h2 class="panel-title">Received Sensor Array Telemetry</h2>
-          <div class="panel-subtitle">DHT22 Multi-Zone Matrix &bull; Operating Bounds: [0.0&deg;C, 14.0&deg;C], [65%, 95%] RH</div>
+          <h2 class="section-title">Received Sensor Telemetry</h2>
+          <div class="section-meta">Calibrated DHT22 Sensirion Matrix &bull; Operating Bounds: [0.0&deg;C, 14.0&deg;C], [65%, 95%] RH</div>
         </div>
-        <span class="badge badge-low">Defender Ingestion Channel</span>
+        <span class="badge badge-low">Ingested Channels</span>
       </div>
       <div id="sensor-matrix" class="sensor-matrix-grid">
         <div class="sensor-card"><span>Ingesting Telemetry Channel...</span></div>
       </div>
     </section>
 
-    <!-- 3. Primary Security Decision Verdict Banner -->
+    <!-- 3. Primary Security Decision Verdict -->
     <section id="joint-decision-banner" class="decision-banner verdict-normal">
       <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-3);">
         <div class="verdict-display">
-          <span style="font-size: 12px; font-weight: 600; text-transform: uppercase; color: var(--color-text-secondary); letter-spacing: 0.04em;">Joint Classification:</span>
+          <span style="font-size: 12px; font-weight: 600; text-transform: uppercase; color: var(--color-text-secondary); letter-spacing: 0.04em;">Defender Classification:</span>
           <span id="joint-classification"><span class="badge badge-normal">NORMAL</span></span>
         </div>
-        <div style="display: flex; gap: var(--space-5); align-items: baseline;">
-          <div class="risk-metric-box">
-            <span id="joint-risk" class="mono" style="font-size: 13px; color: var(--color-text-secondary);">Risk Score: 0.000</span>
-          </div>
-          <div class="risk-metric-box">
-            <strong id="joint-integrity" class="mono" style="font-size: 14px; color: var(--color-text-primary);">Integrity: 100.0%</strong>
-          </div>
+        <div style="display: flex; gap: var(--space-4); align-items: baseline;">
+          <span id="joint-risk" class="mono" style="font-size: 13px; color: var(--color-text-secondary);">Risk score: 0.000</span>
+          <strong id="joint-integrity" class="mono" style="font-size: 13px; color: var(--color-text-primary);">Integrity: 100.0%</strong>
         </div>
       </div>
-      <div id="joint-explanation" style="font-size: 13px; color: var(--color-text-secondary); margin-top: var(--space-2); line-height: 1.45;">
-        Operational records, IoT telemetry, and multi-sensor readings are internally consistent.
+      <div id="joint-explanation" style="font-size: 13px; color: var(--color-text-secondary); margin-top: 6px; line-height: 1.45;">
+        Operational records and multi-sensor readings are internally consistent.
       </div>
     </section>
 
-    <!-- 4. Five Explainable Detection Layers Grid -->
-    <div class="pipeline-grid">
-
-      <!-- Layer 1: ML IsolationForest Outlier Detector -->
-      <div class="stage-card">
-        <div class="stage-header">
-          <div class="stage-name">1. ML Outlier Detector</div>
-          <span id="ml-status"><span class="badge badge-normal">NORMAL</span></span>
-        </div>
-        <div class="stage-body">
-          <div>Anomaly Score: <span id="ml-score" class="mono" style="color: var(--color-text-primary); font-weight: 600;">0.000</span> (Threshold: 0.60)</div>
-          <div>Anomaly Status: <span id="ml-flag" style="color: var(--color-text-primary);">FALSE (Normal)</span></div>
-          <div>Model Mode: <span id="ml-mode" class="mono" style="color: var(--color-text-secondary);">environmental_multisensor</span></div>
-          <div style="color: var(--color-text-muted); font-size: 11px;">Features: <span id="ml-features">temperature, humidity, delta_t, delta_h, std_t</span></div>
-        </div>
+    <!-- 4. Detection Evidence Breakdown -->
+    <section>
+      <div class="section-header">
+        <h2 class="section-title">Detection Evidence Breakdown</h2>
+        <span class="section-meta">Multi-layer evidentiary evaluation</span>
       </div>
+      <div class="pipeline-grid">
 
-      <!-- Layer 2: Temporal Analysis Engine -->
-      <div class="stage-card">
-        <div class="stage-header">
-          <div class="stage-name">2. Temporal Continuity</div>
-          <span id="temp-status"><span class="badge badge-normal">STABLE</span></span>
-        </div>
-        <div class="stage-body">
-          <div>Anomaly Score: <span id="temp-score" class="mono" style="color: var(--color-text-primary); font-weight: 600;">0.00</span></div>
-          <div>Persistence: <span id="temp-persistence" style="color: var(--color-text-primary);">0 consecutive intervals</span></div>
-          <div>Recurrence (10-Step): <span id="temp-recurrence" style="color: var(--color-text-primary);">0 / 10 observations</span></div>
-          <div style="color: var(--color-text-muted); font-size: 11px;">EWMA half-life decay, telemetry freezing, and drift tracking.</div>
-        </div>
-      </div>
-
-      <!-- Layer 3: Semantic Invariants Verification -->
-      <div class="stage-card" style="grid-column: span 2;">
-        <div class="stage-header">
-          <div class="stage-name">3. Semantic Invariant Verification</div>
-          <span id="sem-status"><span class="badge badge-normal">NORMAL</span></span>
-        </div>
-        <div class="stage-body">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
-            <span>Composite Semantic Score: <span id="sem-score" class="mono" style="color: var(--color-text-primary); font-weight: 600;">0.00</span></span>
-            <span style="font-size: 11px; color: var(--color-text-muted);">C1/C2 N/A in Hohenheim Mode</span>
+        <!-- Layer 1: ML Outlier Detector -->
+        <div class="stage-card">
+          <div class="stage-header">
+            <span class="stage-name">ML Outlier Detector</span>
+            <span id="ml-status"><span class="badge badge-normal">NORMAL</span></span>
           </div>
-
-          <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2);">
-            <div id="c1-block" class="constraint-item">Loading C1...</div>
-            <div id="c2-block" class="constraint-item">Loading C2...</div>
-            <div id="c3-block" class="constraint-item">Loading C3...</div>
-            <div id="c4-block" class="constraint-item">Loading C4...</div>
+          <div class="stage-body">
+            <div>Anomaly score: <span id="ml-score" class="mono" style="color: var(--color-text-primary); font-weight: 600;">0.000</span> (Threshold: 0.60)</div>
+            <div>Status: <span id="ml-flag" style="color: var(--color-text-primary);">Within normal bounds</span></div>
+            <div>Model mode: <span id="ml-mode" class="mono" style="color: var(--color-text-secondary);">environmental_multisensor</span></div>
+            <div style="color: var(--color-text-muted); font-size: 11px;">Features: <span id="ml-features">temperature, humidity, delta_t, delta_h, std_t</span></div>
           </div>
         </div>
+
+        <!-- Layer 2: Temporal Continuity -->
+        <div class="stage-card">
+          <div class="stage-header">
+            <span class="stage-name">Temporal Continuity</span>
+            <span id="temp-status"><span class="badge badge-normal">STABLE</span></span>
+          </div>
+          <div class="stage-body">
+            <div>Anomaly score: <span id="temp-score" class="mono" style="color: var(--color-text-primary); font-weight: 600;">0.00</span></div>
+            <div>Persistence: <span id="temp-persistence" style="color: var(--color-text-primary);">0 consecutive intervals</span></div>
+            <div>Recurrence (10-step): <span id="temp-recurrence" style="color: var(--color-text-primary);">0 / 10 observations</span></div>
+            <div style="color: var(--color-text-muted); font-size: 11px;">EWMA decay and drift continuity tracking.</div>
+          </div>
+        </div>
+
+        <!-- Layer 3: Semantic Invariants -->
+        <div class="stage-card" style="grid-column: span 2;">
+          <div class="stage-header">
+            <span class="stage-name">Semantic Invariant Verification</span>
+            <span id="sem-status"><span class="badge badge-normal">NORMAL</span></span>
+          </div>
+          <div class="stage-body">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
+              <span>Composite semantic score: <span id="sem-score" class="mono" style="color: var(--color-text-primary); font-weight: 600;">0.00</span></span>
+              <span style="font-size: 11px; color: var(--color-text-muted);">C1/C2 marked N/A in Hohenheim mode</span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2);">
+              <div id="c1-block" class="constraint-item">Loading C1...</div>
+              <div id="c2-block" class="constraint-item">Loading C2...</div>
+              <div id="c3-block" class="constraint-item">Loading C3...</div>
+              <div id="c4-block" class="constraint-item">Loading C4...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Layer 4: Structural Graph Consensus -->
+        <div class="stage-card">
+          <div class="stage-header">
+            <span class="stage-name">Structural Consensus</span>
+            <span id="struct-status"><span class="badge badge-normal">ISOLATED</span></span>
+          </div>
+          <div class="stage-body">
+            <div>Structural score: <span id="struct-score" class="mono" style="color: var(--color-text-primary); font-weight: 600;">0.00</span></div>
+            <div>Implicated nodes: <span id="struct-nodes" style="color: var(--color-text-primary);">None (Isolated)</span></div>
+            <div>Coupled subsystems: <span id="struct-edges" style="color: var(--color-text-secondary);">None</span></div>
+          </div>
+        </div>
+
+        <!-- Layer 5: Cryptographic Audit Chain -->
+        <div class="stage-card">
+          <div class="stage-header">
+            <span class="stage-name">Audit Chain Verification</span>
+            <span id="kpi-audit-chain"><span class="badge badge-normal">INTACT</span></span>
+          </div>
+          <div class="stage-body">
+            <div>Chain status: <span id="audit-valid-status" style="color: var(--color-success); font-weight: 600;">VERIFIED INTACT</span></div>
+            <div>Verified events: <span id="audit-events-count" class="mono" style="color: var(--color-text-primary);">--</span></div>
+            <div style="color: var(--color-text-muted); font-size: 11px; word-break: break-all;">Latest hash: <span id="audit-latest-hash" class="mono">--</span></div>
+          </div>
+        </div>
+
       </div>
+    </section>
 
-      <!-- Layer 4: Structural Graph Correlation -->
-      <div class="stage-card">
-        <div class="stage-header">
-          <div class="stage-name">4. Structural Graph Consensus</div>
-          <span id="struct-status"><span class="badge badge-normal">ISOLATED</span></span>
-        </div>
-        <div class="stage-body">
-          <div>Structural Score: <span id="struct-score" class="mono" style="color: var(--color-text-primary); font-weight: 600;">0.00</span></div>
-          <div>Implicated Nodes: <span id="struct-nodes" style="color: var(--color-text-primary);">None (Isolated)</span></div>
-          <div>Coupled Subsystems: <span id="struct-edges" style="color: var(--color-text-secondary);">None</span></div>
-        </div>
-      </div>
-
-      <!-- Layer 5: Cryptographic SHA-256 Audit Chain -->
-      <div class="stage-card">
-        <div class="stage-header">
-          <div class="stage-name">5. SHA-256 Audit Chain</div>
-          <span id="kpi-audit-chain"><span class="badge badge-normal">INTACT</span></span>
-        </div>
-        <div class="stage-body">
-          <div>Chain Status: <span id="audit-valid-status" style="color: var(--color-success); font-weight: 600;">VERIFIED INTACT</span></div>
-          <div>Verified Events: <span id="audit-events-count" class="mono" style="color: var(--color-text-primary);">--</span></div>
-          <div style="color: var(--color-text-muted); font-size: 11px; word-break: break-all;">Latest Hash: <span id="audit-latest-hash" class="mono">--</span></div>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- 5. Expandable Raw Evidence JSON Panel -->
+    <!-- 5. Technical Evidence Payload (Expandable) -->
     <section class="panel">
-      <div class="panel-header" onclick="toggleRawEvidence()" style="cursor: pointer; user-select: none; margin-bottom: 0;">
-        <h3 class="panel-title" style="font-size: 14px;">Raw Technical Evidence Payload (JSON)</h3>
-        <span id="raw-evidence-toggle-icon" class="badge badge-secondary" style="background: var(--color-surface-raised); border: 1px solid var(--color-border);">&plus; Expand</span>
+      <div style="display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none;" onclick="toggleRawEvidence()">
+        <span style="font-size: 13px; font-weight: 600; color: var(--color-text-primary);">Technical Evidence Payload (JSON)</span>
+        <span id="raw-evidence-toggle-icon" class="badge" style="background: var(--color-surface-raised); border: 1px solid var(--color-border);">&plus; Expand</span>
       </div>
       <div id="expandable-raw-body" style="display: none; margin-top: var(--space-3); border-top: 1px solid var(--color-border); padding-top: var(--space-3);">
         <pre id="raw-evidence-json" style="background: var(--color-background); border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: var(--space-3); font-size: 12px; color: var(--color-text-secondary); max-height: 280px; overflow-y: auto;">No observation evaluated yet.</pre>
@@ -232,6 +216,7 @@
       <div id="scenarios-container"></div>
       <div id="alerts-container"></div>
       <div id="events-container"></div>
+      <div id="current-time"></div>
       <div id="wh-id">W01</div>
       <div id="wh-step">Step 0</div>
       <div id="wh-inventory">N/A</div>
@@ -310,9 +295,9 @@
   </main>
 
   <!-- Clean Application Footer -->
-  <footer style="background-color: var(--color-surface); border-top: 1px solid var(--color-border); padding: var(--space-3) var(--space-5); margin-top: var(--space-6);">
-    <div style="max-width: 1440px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-3); font-size: 12px; color: var(--color-text-secondary);">
-      <div>Cold-Storage Security Monitor &bull; Defender Security Analysis Portal</div>
+  <footer style="border-top: 1px solid var(--color-border); padding: var(--space-3) var(--space-5); margin-top: var(--space-5);">
+    <div style="max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-3); font-size: 12px; color: var(--color-text-secondary);">
+      <div>Cold-Storage Security Monitor &bull; Defender Security Analysis</div>
       <div style="display: flex; gap: var(--space-4); align-items: center;">
         <a href="/transmitter" style="color: var(--color-text-secondary);">Sensor Transmitter</a>
         <a href="/simulator" style="color: var(--color-text-secondary);">Attack Simulator</a>
@@ -321,8 +306,8 @@
     </div>
   </footer>
 
-  <script src="/js/shared.js?v=20261025_05"></script>
-  <script src="/js/defender.js?v=20261025_05"></script>
-  <script src="/js/app.js?v=20261025_05"></script>
+  <script src="/js/shared.js?v=20261025_06"></script>
+  <script src="/js/defender.js?v=20261025_06"></script>
+  <script src="/js/app.js?v=20261025_06"></script>
 </body>
 </html>

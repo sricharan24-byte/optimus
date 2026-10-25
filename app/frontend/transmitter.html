@@ -5,50 +5,37 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <title>Sensor Transmitter — Cold-Storage Security Monitor</title>
-  <link rel="stylesheet" href="/css/style.css?v=20261025_05">
+  <link rel="stylesheet" href="/css/style.css?v=20261025_06">
 </head>
 <body>
 
-  <!-- Top Application Header -->
+  <!-- Unified Top Navigation Bar (Single 44px Horizontal Bar) -->
   <header class="portal-header">
-    <div>
-      <div class="brand-title">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <div class="header-brand">
+      <a href="/" class="brand-title" style="text-decoration: none;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="10"/>
           <path d="M16.2 7.8a6 6 0 0 1 0 8.4m-8.4-8.4a6 6 0 0 0 0 8.4"/>
           <circle cx="12" cy="12" r="2"/>
         </svg>
         Cold-Storage Security Monitor
-      </div>
-      <div class="brand-subtitle">
-        Portal 2: Sensor Transmitter &bull; Authentic Telemetry Replay &bull; University of Hohenheim (Zenodo 15130001)
-      </div>
+      </a>
+
+      <!-- Three-Portal Navigation Links -->
+      <nav class="portal-nav">
+        <a href="/" class="nav-tab">Defender Portal</a>
+        <a href="/transmitter" class="nav-tab active">Sensor Transmitter</a>
+        <a href="/simulator" class="nav-tab">Attack Simulator</a>
+      </nav>
     </div>
 
-    <div class="header-status-group">
+    <div class="header-status">
       <div class="indicator">
         <span id="health-dot" class="status-dot"></span>
-        <span id="kpi-backend-health">TRANSMITTER ONLINE</span>
+        <span id="kpi-backend-health">System Online</span>
       </div>
-      <div id="current-time" class="time-display">--:--:-- UTC</div>
     </div>
   </header>
-
-  <!-- Three-Portal Navigation Bar -->
-  <nav class="portal-nav">
-    <a href="/" class="nav-tab">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-      Defender Portal
-    </a>
-    <a href="/transmitter" class="nav-tab active">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M16.2 7.8a6 6 0 0 1 0 8.4m-8.4-8.4a6 6 0 0 0 0 8.4"/></svg>
-      Sensor Transmitter
-    </a>
-    <a href="/simulator" class="nav-tab">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-      Attack Simulator
-    </a>
-  </nav>
 
   <main class="container">
 
@@ -62,6 +49,7 @@
       3. Recent Observation History
       4. Simulation Controls
       <div id="connection-banner"></div>
+      <div id="current-time"></div>
       <div id="source-description"></div>
       <div id="source-badge"></div>
       <div id="action-badge-container"></div>
@@ -109,32 +97,32 @@
 
     <!-- 1. Dataset Provenance & Playback Position Card -->
     <section class="panel">
-      <div class="panel-header">
+      <div class="section-header">
         <div>
           <div style="display: flex; align-items: center; gap: var(--space-2); margin-bottom: 2px;">
-            <h2 class="panel-title">Data Provenance &bull; Facility W01</h2>
-            <span class="badge badge-normal">Zenodo 15130001 (CC-BY-4.0)</span>
+            <h2 class="section-title">Recorded Dataset Replay</h2>
+            <span class="badge badge-normal">Hohenheim Zenodo 15130001</span>
           </div>
-          <div class="panel-subtitle">
-            156,836 real observations &bull; 5-second sampling interval &bull; Natural dropouts preserved (Sensors 3, 5, 9)
+          <div class="section-meta">
+            Facility W01 &bull; 156,836 authentic observations &bull; 5-second sampling interval (Not live sensor hardware)
           </div>
         </div>
 
         <div style="display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap;">
-          <span id="tx-action-badge"><span class="badge badge-normal">&bull; Normal Operating Routine</span></span>
+          <span id="tx-action-badge"><span class="badge badge-normal">Routine Operation</span></span>
           <span id="tx-delta-t" class="badge badge-normal">&Delta;T: 0.0&deg;C</span>
           <span id="tx-active-count" class="badge badge-normal">6 / 9 Active</span>
-          <span id="tx-timestamp" class="time-display">--:--:-- UTC</span>
+          <span id="tx-timestamp" class="mono" style="font-size: 12px; color: var(--color-text-secondary); background: var(--color-surface-raised); padding: 2px 6px; border-radius: 2px; border: 1px solid var(--color-border);">--:--:-- UTC</span>
         </div>
       </div>
 
       <!-- Playback Controls Bar -->
-      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-3); background-color: var(--color-surface-raised); border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: var(--space-3);">
+      <div class="playback-bar">
         <div style="display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap;">
-          <span style="font-size: 12px; font-weight: 600; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.04em;">Playback Cursor:</span>
+          <span style="font-size: 12px; font-weight: 600; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.04em;">Dataset Position:</span>
           <span id="tx-step-badge" class="badge badge-normal mono">Step 0 / 156,835</span>
-          <div style="display: flex; align-items: center; gap: var(--space-1);">
-            <input type="number" id="tx-step-input" class="form-input mono" style="width: 110px; height: 30px; font-size: 13px;" min="0" max="156835" value="0">
+          <div style="display: flex; align-items: center; gap: 4px;">
+            <input type="number" id="tx-step-input" class="form-input mono" style="width: 100px; height: 28px; font-size: 12px;" min="0" max="156835" value="0">
             <button class="btn btn-secondary btn-sm" onclick="txJumpToStep()">Jump</button>
           </div>
         </div>
@@ -142,7 +130,7 @@
         <div class="playback-controls">
           <button class="btn btn-secondary btn-sm" onclick="txResetPlayback()">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
-            Reset (Step 0)
+            Reset
           </button>
           <button class="btn btn-secondary btn-sm" onclick="txStepForward()">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
@@ -155,93 +143,78 @@
         </div>
       </div>
 
-      <!-- Playback Timeline Progress Bar -->
-      <div class="timeline-progress-bar" style="margin-top: var(--space-3);">
+      <!-- Playback Timeline Progress Track -->
+      <div class="timeline-progress-bar">
         <div id="tx-progress-fill" class="timeline-progress-fill" style="width: 0%;"></div>
       </div>
     </section>
 
-    <!-- 2. 9-Sensor DHT22 Real Telemetry Matrix -->
+    <!-- 2. Sensor Readings (9-Channel Real Telemetry Matrix) -->
     <section class="panel">
-      <div class="panel-header">
+      <div class="section-header">
         <div>
-          <h2 class="panel-title">Transmitter Sensor Channels &bull; 9-Channel Array</h2>
-          <div class="panel-subtitle">Calibrated DHT22 Sensirion Matrix &bull; Recorded Temperature &amp; Relative Humidity</div>
+          <h2 class="section-title">Available Sensor Channels</h2>
+          <div class="section-meta">9 DHT22 Channels &bull; Channels 3, 5, 9 are natural research dropouts</div>
         </div>
-        <span class="badge badge-low">Raw Transmitter Output</span>
+        <span class="badge badge-low">Transmitter Output</span>
       </div>
       <div id="tx-sensor-matrix" class="sensor-matrix-grid">
         <div class="sensor-card"><span>Acquiring Telemetry...</span></div>
       </div>
     </section>
 
-    <!-- 3. Rolling Window Time-Series Visualization (SVG) -->
+    <!-- 3. Defender Pipeline Transmission & Delivery Acknowledgement -->
     <section class="panel">
-      <div class="panel-header">
+      <div class="section-header">
         <div>
-          <h2 class="panel-title">Rolling Observation Time-Series (20-Step Window)</h2>
-          <div class="panel-subtitle">Solid Line: Facility Mean Temperature (&deg;C) &bull; Cursor: Active Replay Position</div>
-        </div>
-      </div>
-      <div style="background-color: var(--color-background); border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: var(--space-2); overflow-x: auto;">
-        <svg id="tx-svg-chart" width="100%" height="110" viewBox="0 0 450 110" preserveAspectRatio="none" style="display: block;">
-          <text x="225" y="55" fill="var(--color-text-muted)" font-size="11" text-anchor="middle" font-family="monospace">Loading telemetry curve...</text>
-        </svg>
-      </div>
-    </section>
-
-    <!-- 4. Defender Ingestion Transmission & Delivery Receipts -->
-    <section class="panel">
-      <div class="panel-header">
-        <div>
-          <h2 class="panel-title">Ingestion Pipeline Delivery &bull; Transmit to Defender</h2>
-          <div class="panel-subtitle">
-            Submits the active authentic observation to the Defender detection pipeline (<span class="mono" style="color: var(--color-accent);">POST /api/warehouse/transmit</span>)
+          <h2 class="section-title">Defender Transmission &amp; Acknowledgement</h2>
+          <div class="section-meta">
+            Transmits active observation to Defender pipeline (<span class="mono" style="color: var(--color-accent);">POST /api/warehouse/transmit</span>)
           </div>
         </div>
 
-        <div style="display: flex; align-items: center; gap: var(--space-4); flex-wrap: wrap;">
-          <label style="display: flex; align-items: center; gap: var(--space-2); font-size: 13px; color: var(--color-text-secondary); cursor: pointer; user-select: none;">
-            <input type="checkbox" id="auto-transmit-checkbox" checked style="cursor: pointer; accent-color: var(--color-accent);">
+        <div style="display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap;">
+          <label style="display: flex; align-items: center; gap: var(--space-1); font-size: 13px; color: var(--color-text-secondary); cursor: pointer; user-select: none;">
+            <input type="checkbox" id="auto-transmit-checkbox" checked style="accent-color: var(--color-accent); cursor: pointer;">
             <span>Auto-transmit on step / seek</span>
           </label>
           <button id="btn-transmit" class="btn btn-primary" onclick="transmitCurrentObservation()">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
             Transmit to Defender
           </button>
         </div>
       </div>
 
-      <!-- Transmission Delivery Receipt Box -->
-      <div id="tx-receipt-card" style="display: none; background-color: var(--color-surface-raised); border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: var(--space-3); margin-bottom: var(--space-3);">
+      <!-- Live Delivery Receipt -->
+      <div id="tx-receipt-card" style="display: none; background-color: var(--color-surface-raised); border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: var(--space-2) var(--space-3); margin-bottom: var(--space-3);">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-3);">
-          <div style="display: flex; align-items: center; gap: var(--space-3);">
+          <div style="display: flex; align-items: center; gap: var(--space-2);">
             <span id="receipt-status-badge" class="badge badge-normal">DELIVERED</span>
             <span style="font-size: 13px; color: var(--color-text-secondary);">Observation:</span>
-            <span id="receipt-obs-id" class="mono" style="color: var(--color-accent); font-weight: 600;">OBS-000000</span>
+            <span id="receipt-obs-id" class="mono text-accent" style="font-weight: 600;">OBS-000000</span>
           </div>
           <div style="font-size: 13px; display: flex; align-items: center; gap: var(--space-4);">
-            <span>Round-Trip Latency: <strong id="receipt-latency" class="mono" style="color: var(--color-text-primary);">-- ms</strong></span>
-            <span>Defender Verdict: <span id="receipt-verdict" style="font-weight: 600;">--</span></span>
+            <span>Ingestion latency: <strong id="receipt-latency" class="mono">-- ms</strong></span>
+            <span>Defender verdict: <span id="receipt-verdict" style="font-weight: 600;">--</span></span>
           </div>
         </div>
       </div>
 
-      <!-- Live Transmission Stream Log -->
+      <!-- Transmission Stream Log -->
       <div>
-        <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; color: var(--color-text-muted); letter-spacing: 0.04em; margin-bottom: var(--space-1);">
+        <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--color-text-muted); letter-spacing: 0.04em; margin-bottom: 4px;">
           Transmission Log Stream
         </div>
-        <pre id="tx-log-content" style="background-color: var(--color-background); border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: var(--space-3); font-family: var(--font-mono); font-size: 12px; color: var(--color-text-secondary); max-height: 120px; overflow-y: auto; white-space: pre-wrap;">Awaiting initial transmission...</pre>
+        <pre id="tx-log-content" style="background-color: var(--color-background); border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: var(--space-2) var(--space-3); font-family: var(--font-mono); font-size: 12px; color: var(--color-text-secondary); max-height: 110px; overflow-y: auto; white-space: pre-wrap;">Awaiting transmission...</pre>
       </div>
     </section>
 
   </main>
 
   <!-- Clean Application Footer -->
-  <footer style="background-color: var(--color-surface); border-top: 1px solid var(--color-border); padding: var(--space-3) var(--space-5); margin-top: var(--space-6);">
-    <div style="max-width: 1440px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-3); font-size: 12px; color: var(--color-text-secondary);">
-      <div>Cold-Storage Security Monitor &bull; Sensor Transmitter Portal</div>
+  <footer style="border-top: 1px solid var(--color-border); padding: var(--space-3) var(--space-5); margin-top: var(--space-5);">
+    <div style="max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-3); font-size: 12px; color: var(--color-text-secondary);">
+      <div>Cold-Storage Security Monitor &bull; Sensor Transmitter</div>
       <div style="display: flex; gap: var(--space-4); align-items: center;">
         <a href="/" style="color: var(--color-text-secondary);">Defender Portal</a>
         <a href="/simulator" style="color: var(--color-text-secondary);">Attack Simulator</a>
@@ -250,7 +223,7 @@
     </div>
   </footer>
 
-  <script src="/js/shared.js?v=20261025_05"></script>
-  <script src="/js/transmitter.js?v=20261025_05"></script>
+  <script src="/js/shared.js?v=20261025_06"></script>
+  <script src="/js/transmitter.js?v=20261025_06"></script>
 </body>
 </html>

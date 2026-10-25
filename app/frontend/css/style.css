@@ -1,40 +1,34 @@
 /* ==========================================================================
-   Optimus — Production Cybersecurity Research Design System
-   Standardized Design Tokens, Typographic Scale, and Component System
+   Optimus — Professional Cybersecurity Research Interface
+   Restrained, Evidence-Driven, Engineering-Grade Design System
    ========================================================================== */
 
 :root {
-  /* ------------------------------------------------------------------------
-     1. Proposed Standardized Design Tokens
-     ------------------------------------------------------------------------ */
+  /* Centralized Design Tokens */
   --color-background: #101820;
   --color-surface: #18232F;
   --color-surface-raised: #202E3D;
   --color-border: #263545;
+  --color-border-subtle: #1C2734;
+  --color-border-focus: #3984F7;
   --color-text-primary: #F1F5F9;
   --color-text-secondary: #A8B5C5;
-  --color-accent: #3984F7;
-  --color-success: #35C995;
-  --color-warning: #F2B84B;
-  --color-danger: #F16C75;
-
-  /* Extended & Functional Tokens */
-  --color-border-subtle: #1c2734;
-  --color-border-focus: #3984F7;
-  --color-surface-hover: #1e2c3b;
-  --color-accent-hover: #2b74e6;
-  --color-accent-subtle: rgba(57, 132, 247, 0.12);
-  --color-success-subtle: rgba(53, 201, 149, 0.12);
-  --color-warning-subtle: rgba(242, 184, 75, 0.12);
-  --color-danger-subtle: rgba(241, 108, 117, 0.14);
   --color-text-muted: #64748B;
   --color-text-disabled: #475569;
-  --color-control-disabled: #141e28;
+  --color-accent: #3984F7;
+  --color-accent-hover: #2B74E6;
+  --color-accent-subtle: rgba(57, 132, 247, 0.12);
+  --color-success: #35C995;
+  --color-success-subtle: rgba(53, 201, 149, 0.12);
+  --color-warning: #F2B84B;
+  --color-warning-subtle: rgba(242, 184, 75, 0.12);
+  --color-danger: #F16C75;
+  --color-danger-subtle: rgba(241, 108, 117, 0.14);
   --color-overlay: rgba(16, 24, 32, 0.85);
 
   /* Typography Scale */
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
   
   --font-size-title: 24px;
   --font-size-section: 16px;
@@ -53,18 +47,15 @@
   --space-4: 16px;
   --space-5: 24px;
   --space-6: 32px;
-  --space-7: 40px;
-  --space-8: 48px;
 
-  /* Corner Radii */
+  /* Corner Radii (Square / Subtle 3px) */
   --radius-none: 0px;
-  --radius-sm: 4px;
-  --radius-md: 6px;
+  --radius-sm: 3px;
+  --radius-md: 4px;
 
-  /* Legacy & Test Backward-Compatibility Aliases */
+  /* Backward Compatibility Aliases for Automated Tests */
   --bg-main: var(--color-background);
   --bg-card: var(--color-surface);
-  --bg-card-hover: var(--color-surface-hover);
   --bg-panel: var(--color-surface-raised);
   --border-color: var(--color-border);
   --border-light: var(--color-border);
@@ -83,9 +74,7 @@
   --status-coordinated-bg: var(--color-danger-subtle);
 }
 
-/* --------------------------------------------------------------------------
-   2. Reset & Base Typography
-   -------------------------------------------------------------------------- */
+/* Base Reset & Typography */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -95,7 +84,6 @@
 html {
   font-size: 14px;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
@@ -128,13 +116,14 @@ code, pre, .mono {
   font-variant-numeric: tabular-nums;
 }
 
-/* --------------------------------------------------------------------------
-   3. Application Header & Navigation Bar
-   -------------------------------------------------------------------------- */
+/* ==========================================================================
+   Header & Unified Navigation Bar (Single Slim 44px Top Bar)
+   ========================================================================== */
 .portal-header {
-  background-color: var(--color-surface);
+  height: 44px;
+  background-color: #141C24;
   border-bottom: 1px solid var(--color-border);
-  padding: var(--space-3) var(--space-5);
+  padding: 0 var(--space-5);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -143,14 +132,21 @@ code, pre, .mono {
   z-index: 100;
 }
 
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+}
+
 .brand-title {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--color-text-primary);
   display: flex;
   align-items: center;
   gap: var(--space-2);
   letter-spacing: -0.01em;
+  white-space: nowrap;
 }
 
 .brand-title svg {
@@ -158,67 +154,19 @@ code, pre, .mono {
   flex-shrink: 0;
 }
 
-.brand-subtitle {
-  font-size: var(--font-size-meta);
-  color: var(--color-text-secondary);
-  font-weight: 400;
-  margin-top: 2px;
-}
-
-.header-status-group {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-}
-
-.indicator {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  font-size: var(--font-size-meta);
-  font-weight: 500;
-  color: var(--color-text-secondary);
-}
-
-.status-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background-color: var(--color-success);
-  display: inline-block;
-}
-
-.status-dot.offline {
-  background-color: var(--color-danger);
-}
-
-.time-display {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-meta);
-  font-weight: 500;
-  color: var(--color-text-primary);
-  font-variant-numeric: tabular-nums;
-  padding: 2px var(--space-2);
-  background: var(--color-background);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-}
-
-/* Three-Portal Tab Navigation */
 .portal-nav {
-  background-color: var(--color-surface);
-  border-bottom: 1px solid var(--color-border);
   display: flex;
-  padding: 0 var(--space-5);
+  align-items: center;
   gap: var(--space-1);
+  height: 44px;
 }
 
 .nav-tab {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-3) var(--space-4);
-  font-size: var(--font-size-button);
+  height: 44px;
+  padding: 0 var(--space-3);
+  font-size: 13px;
   font-weight: 500;
   color: var(--color-text-secondary);
   border-bottom: 2px solid transparent;
@@ -236,93 +184,83 @@ code, pre, .mono {
   border-bottom-color: var(--color-accent);
 }
 
-.nav-tab svg {
-  flex-shrink: 0;
+.header-status {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  font-size: var(--font-size-meta);
 }
 
-/* --------------------------------------------------------------------------
-   4. Layout Containers & Grid System
-   -------------------------------------------------------------------------- */
+.indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--font-size-meta);
+  color: var(--color-text-secondary);
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: var(--color-success);
+  display: inline-block;
+}
+
+.status-dot.offline {
+  background-color: var(--color-danger);
+}
+
+/* ==========================================================================
+   Page Layout & Sections (Clean Spacing, No Nested Cards)
+   ========================================================================== */
 .container {
-  max-width: 1440px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: var(--space-5);
+  padding: var(--space-4) var(--space-5);
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
 }
 
-.grid-2col {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-4);
-}
-
-.grid-3col {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-4);
-}
-
-.grid-4col {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--space-4);
-}
-
-.grid-split {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-4);
-}
-
-@media (max-width: 1024px) {
-  .grid-2col, .grid-3col, .grid-4col, .grid-split {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* --------------------------------------------------------------------------
-   5. Standard Panels & Cards
-   -------------------------------------------------------------------------- */
-.panel, .panel-card {
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: var(--space-4);
-}
-
-.panel-header {
+.section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--space-3);
+  margin-bottom: var(--space-2);
   gap: var(--space-3);
   flex-wrap: wrap;
 }
 
-.panel-title {
+.section-title {
   font-size: var(--font-size-section);
   font-weight: 600;
   color: var(--color-text-primary);
   letter-spacing: -0.01em;
 }
 
-.panel-subtitle {
+.section-meta {
   font-size: var(--font-size-meta);
   color: var(--color-text-secondary);
   font-weight: 400;
 }
 
-/* --------------------------------------------------------------------------
-   6. Buttons & Interactive Controls
-   -------------------------------------------------------------------------- */
+.panel, .panel-card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-4);
+}
+
+/* ==========================================================================
+   Buttons & Interactive Form Controls (Disciplined 32px Standard Height)
+   ========================================================================== */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-  height: 34px;
+  height: 32px;
   padding: 0 var(--space-3);
   font-family: var(--font-sans);
   font-size: var(--font-size-button);
@@ -331,7 +269,7 @@ code, pre, .mono {
   border-radius: var(--radius-sm);
   border: 1px solid transparent;
   cursor: pointer;
-  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
   white-space: nowrap;
 }
 
@@ -341,7 +279,7 @@ code, pre, .mono {
 }
 
 .btn:disabled, .btn[disabled] {
-  opacity: 0.5;
+  opacity: 0.45;
   cursor: not-allowed;
   pointer-events: none;
 }
@@ -364,7 +302,7 @@ code, pre, .mono {
 }
 
 .btn-secondary:hover:not(:disabled) {
-  background-color: var(--color-surface-hover);
+  background-color: #26384C;
   border-color: var(--color-text-secondary);
 }
 
@@ -375,27 +313,15 @@ code, pre, .mono {
 }
 
 .btn-danger:hover:not(:disabled) {
-  background-color: #e0525b;
-}
-
-.btn-text {
-  background-color: transparent;
-  color: var(--color-text-secondary);
-  border-color: transparent;
-}
-
-.btn-text:hover:not(:disabled) {
-  color: var(--color-text-primary);
-  background-color: var(--color-surface-raised);
+  background-color: #E0525B;
 }
 
 .btn-sm {
-  height: 28px;
+  height: 26px;
   padding: 0 var(--space-2);
   font-size: var(--font-size-meta);
 }
 
-/* Form Controls */
 .form-group {
   display: flex;
   flex-direction: column;
@@ -410,15 +336,14 @@ code, pre, .mono {
 
 .form-control, .form-input, .form-select,
 input[type="text"], input[type="number"], select {
-  height: 34px;
-  padding: 0 var(--space-3);
+  height: 32px;
+  padding: 0 var(--space-2);
   font-family: var(--font-sans);
   font-size: var(--font-size-label);
   color: var(--color-text-primary);
   background-color: var(--color-background);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
-  transition: border-color 0.15s ease;
 }
 
 .form-control:focus, .form-input:focus, .form-select:focus,
@@ -427,110 +352,103 @@ input[type="text"]:focus, input[type="number"]:focus, select:focus {
   border-color: var(--color-border-focus);
 }
 
-.form-control:disabled, select:disabled, input:disabled {
-  background-color: var(--color-control-disabled);
-  color: var(--color-text-disabled);
-  cursor: not-allowed;
-}
-
-/* --------------------------------------------------------------------------
-   7. Badges & Semantic Status Indicators
-   -------------------------------------------------------------------------- */
+/* ==========================================================================
+   Badges (Crisp, High-Contrast, Restrained)
+   ========================================================================== */
 .badge {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 2px 8px;
+  padding: 2px 6px;
   font-size: var(--font-size-meta);
   font-weight: 500;
-  border-radius: var(--radius-sm);
+  border-radius: 2px;
   font-variant-numeric: tabular-nums;
-  white-space: nowrap;
+  line-height: 1.2;
 }
 
 .badge-normal, .badge-pass, .badge-stable, .badge-online, .badge-delivered {
   background-color: var(--color-success-subtle);
   color: var(--color-success);
-  border: 1px solid rgba(53, 201, 149, 0.35);
+  border: 1px solid rgba(53, 201, 149, 0.4);
 }
 
 .badge-low, .badge-info {
   background-color: var(--color-accent-subtle);
   color: var(--color-accent);
-  border: 1px solid rgba(57, 132, 247, 0.35);
+  border: 1px solid rgba(57, 132, 247, 0.4);
 }
 
 .badge-suspicious, .badge-warning, .badge-dropout {
   background-color: var(--color-warning-subtle);
   color: var(--color-warning);
-  border: 1px solid rgba(242, 184, 75, 0.35);
+  border: 1px solid rgba(242, 184, 75, 0.4);
 }
 
 .badge-potential_attack, .badge-attack, .badge-violation, .badge-anomaly {
   background-color: var(--color-danger-subtle);
   color: var(--color-danger);
-  border: 1px solid rgba(241, 108, 117, 0.4);
+  border: 1px solid rgba(241, 108, 117, 0.45);
 }
 
 .badge-coordinated_attack, .badge-error, .badge-danger {
-  background-color: rgba(241, 108, 117, 0.22);
+  background-color: rgba(241, 108, 117, 0.2);
   color: var(--color-danger);
   border: 1px solid var(--color-danger);
 }
 
 .badge-na, .badge-not_applicable, .badge-insufficient_data {
-  background-color: rgba(168, 181, 197, 0.1);
+  background-color: transparent;
   color: var(--color-text-secondary);
-  border: 1px solid rgba(168, 181, 197, 0.25);
+  border: 1px solid rgba(168, 181, 197, 0.3);
 }
 
-/* --------------------------------------------------------------------------
-   8. Tables (Clean, Square, Tabular Telemetry)
-   -------------------------------------------------------------------------- */
-.data-table, .table {
+/* ==========================================================================
+   Technical Data Tables (Square, High-Density, Tabular Telemetry)
+   ========================================================================== */
+.data-table, .ops-table, .diff-table {
   width: 100%;
   border-collapse: collapse;
   font-size: var(--font-size-table);
   text-align: left;
 }
 
-.data-table th, .table th {
-  background-color: var(--color-background);
+.data-table th, .ops-table th, .diff-table th {
+  background-color: #141C24;
   color: var(--color-text-secondary);
   font-size: var(--font-size-meta);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  padding: var(--space-2) var(--space-3);
+  padding: 6px var(--space-3);
   border-bottom: 1px solid var(--color-border);
 }
 
-.data-table td, .table td {
-  padding: var(--space-2) var(--space-3);
+.data-table td, .ops-table td, .diff-table td {
+  padding: 6px var(--space-3);
   border-bottom: 1px solid var(--color-border-subtle);
   color: var(--color-text-primary);
   font-variant-numeric: tabular-nums;
 }
 
-.data-table tr:hover td, .table tr:hover td {
-  background-color: var(--color-surface-hover);
+.data-table tr:hover td, .ops-table tr:hover td, .diff-table tr:hover td {
+  background-color: var(--color-surface-raised);
 }
 
 .table-empty {
-  padding: var(--space-5);
+  padding: var(--space-4);
   text-align: center;
-  color: var(--color-text-secondary);
+  color: var(--color-text-muted);
   font-style: italic;
 }
 
-/* --------------------------------------------------------------------------
-   9. Sensor Telemetry Array (9-Sensor Matrix Grid)
-   -------------------------------------------------------------------------- */
+/* ==========================================================================
+   Sensor Telemetry Grid (9-Channel Real Environmental Telemetry)
+   ========================================================================== */
 .sensor-matrix-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-3);
-  margin-top: var(--space-2);
+  gap: var(--space-2);
 }
 
 @media (max-width: 900px) {
@@ -548,10 +466,10 @@ input[type="text"]:focus, input[type="number"]:focus, select:focus {
   background-color: var(--color-surface-raised);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
-  padding: var(--space-3);
+  padding: var(--space-2) var(--space-3);
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: 2px;
 }
 
 .sensor-header {
@@ -565,14 +483,13 @@ input[type="text"]:focus, input[type="number"]:focus, select:focus {
 
 .sensor-values {
   display: flex;
-  gap: var(--space-4);
+  gap: var(--space-3);
   align-items: baseline;
-  margin-top: 2px;
 }
 
 .sensor-val {
   font-family: var(--font-mono);
-  font-size: var(--font-size-section);
+  font-size: 15px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   color: var(--color-text-primary);
@@ -582,39 +499,34 @@ input[type="text"]:focus, input[type="number"]:focus, select:focus {
   font-size: var(--font-size-meta);
   color: var(--color-text-secondary);
   font-weight: 400;
-  margin-left: 2px;
 }
 
 .sensor-card.dropout {
-  border-style: dashed;
-  border-color: var(--color-warning);
-  background-color: rgba(242, 184, 75, 0.04);
+  border: 1px dashed var(--color-warning);
+  background-color: rgba(242, 184, 75, 0.03);
 }
 
 .sensor-card.dropout .sensor-val {
   color: var(--color-warning);
 }
 
-/* --------------------------------------------------------------------------
-   10. Defender Decision Verdict & Pipeline Evidence
-   -------------------------------------------------------------------------- */
+/* ==========================================================================
+   Defender Decision Verdict & Pipeline Evidence
+   ========================================================================== */
 .decision-banner {
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: var(--space-4);
-}
-
-.decision-banner.verdict-normal {
-  border-left: 4px solid var(--color-success);
+  border-left: 3px solid var(--color-success);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-4);
 }
 
 .decision-banner.verdict-suspicious {
-  border-left: 4px solid var(--color-warning);
+  border-left-color: var(--color-warning);
 }
 
 .decision-banner.verdict-attack {
-  border-left: 4px solid var(--color-danger);
+  border-left-color: var(--color-danger);
 }
 
 .verdict-display {
@@ -623,37 +535,10 @@ input[type="text"]:focus, input[type="number"]:focus, select:focus {
   gap: var(--space-3);
 }
 
-.verdict-title {
-  font-size: var(--font-size-title);
-  font-weight: 600;
-  line-height: 1.2;
-  font-variant-numeric: tabular-nums;
-}
-
-.risk-metric-box {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-}
-
-.metric-number {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-metric);
-  font-weight: 600;
-  color: var(--color-text-primary);
-  font-variant-numeric: tabular-nums;
-}
-
-.metric-label {
-  font-size: var(--font-size-meta);
-  color: var(--color-text-secondary);
-}
-
-/* 4-Layer Detection Evidence Breakdown */
 .pipeline-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--space-3);
+  gap: var(--space-2);
 }
 
 @media (max-width: 1100px) {
@@ -671,18 +556,18 @@ input[type="text"]:focus, input[type="number"]:focus, select:focus {
   background-color: var(--color-surface-raised);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
-  padding: var(--space-3);
+  padding: var(--space-2) var(--space-3);
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--space-1);
 }
 
 .stage-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid var(--color-border);
-  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--color-border-subtle);
+  padding-bottom: 4px;
 }
 
 .stage-name {
@@ -696,131 +581,57 @@ input[type="text"]:focus, input[type="number"]:focus, select:focus {
   color: var(--color-text-secondary);
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: 3px;
 }
 
 .constraint-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 3px 0;
+  padding: 2px 0;
   border-bottom: 1px solid var(--color-border-subtle);
 }
 
-/* --------------------------------------------------------------------------
-   11. Sensor Transmitter Timeline & Controls
-   -------------------------------------------------------------------------- */
+/* ==========================================================================
+   Playback Controls & Timeline (Sensor Transmitter)
+   ========================================================================== */
+.playback-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  background-color: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+}
+
 .playback-controls {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  flex-wrap: wrap;
 }
 
 .timeline-progress-bar {
   width: 100%;
-  height: 6px;
+  height: 4px;
   background-color: var(--color-background);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
+  border-radius: 2px;
   overflow: hidden;
-  margin: var(--space-2) 0;
+  margin-top: var(--space-2);
 }
 
 .timeline-progress-fill {
   height: 100%;
   background-color: var(--color-accent);
   width: 0%;
-  transition: width 0.15s linear;
+  transition: width 0.1s linear;
 }
 
-/* --------------------------------------------------------------------------
-   12. Attack Simulator Modals & Evidence Popups
-   -------------------------------------------------------------------------- */
-.modal-overlay {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background-color: var(--color-overlay);
-  display: none;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  padding: var(--space-4);
-}
-
-.modal-container {
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  width: 100%;
-  max-width: 720px;
-  max-height: 85vh;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.modal-header {
-  padding: var(--space-3) var(--space-4);
-  border-bottom: 1px solid var(--color-border);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: var(--color-surface-raised);
-}
-
-.modal-body {
-  padding: var(--space-4);
-  overflow-y: auto;
-  font-size: var(--font-size-body);
-}
-
-.modal-footer {
-  padding: var(--space-3) var(--space-4);
-  border-top: 1px solid var(--color-border);
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--space-3);
-  background-color: var(--color-background);
-}
-
-/* --------------------------------------------------------------------------
-   13. Connection Banners & Utility Classes
-   -------------------------------------------------------------------------- */
-.connection-banner {
-  background-color: var(--color-danger-subtle);
-  border: 1px solid var(--color-danger);
-  border-radius: var(--radius-sm);
-  padding: var(--space-3) var(--space-4);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: var(--space-3);
-  color: var(--color-text-primary);
-  font-size: var(--font-size-label);
-}
-
-.hidden {
-  display: none !important;
-}
-
-.text-success { color: var(--color-success) !important; }
-.text-warning { color: var(--color-warning) !important; }
-.text-danger { color: var(--color-danger) !important; }
-.text-secondary { color: var(--color-text-secondary) !important; }
-.text-muted { color: var(--color-text-muted) !important; }
-
-/* Accessible reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-/* --------------------------------------------------------------------------
-   14. Form Grids, Metrics Strips & Outcome Badges
-   -------------------------------------------------------------------------- */
+/* ==========================================================================
+   Attack Simulator Grids, Evaluation Metrics & Modals
+   ========================================================================== */
 .form-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -858,7 +669,7 @@ input[type="text"]:focus, input[type="number"]:focus, select:focus {
 
 .metric-box-val {
   font-family: var(--font-mono);
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   color: var(--color-text-primary);
@@ -868,11 +679,10 @@ input[type="text"]:focus, input[type="number"]:focus, select:focus {
 .outcome-pill {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 2px 8px;
+  padding: 2px 6px;
   font-size: 11px;
   font-weight: 600;
-  border-radius: var(--radius-sm);
+  border-radius: 2px;
   font-variant-numeric: tabular-nums;
 }
 
@@ -906,31 +716,83 @@ input[type="text"]:focus, input[type="number"]:focus, select:focus {
   border: 1px solid var(--color-border);
 }
 
-.diff-table, .ops-table {
+/* Modals */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: var(--color-overlay);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: var(--space-4);
+}
+
+.modal-container {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
   width: 100%;
-  border-collapse: collapse;
-  font-size: var(--font-size-table);
-  text-align: left;
+  max-width: 720px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
-.diff-table th, .ops-table th {
-  background-color: var(--color-background);
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-meta);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  padding: var(--space-2) var(--space-3);
+.modal-header {
+  padding: var(--space-3) var(--space-4);
   border-bottom: 1px solid var(--color-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--color-surface-raised);
 }
 
-.diff-table td, .ops-table td {
-  padding: var(--space-2) var(--space-3);
-  border-bottom: 1px solid var(--color-border-subtle);
-  color: var(--color-text-primary);
-  font-variant-numeric: tabular-nums;
+.modal-body {
+  padding: var(--space-4);
+  overflow-y: auto;
+  font-size: var(--font-size-body);
 }
 
-.diff-table tr:hover td, .ops-table tr:hover td {
-  background-color: var(--color-surface-hover);
+.modal-footer {
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  background-color: var(--color-background);
+}
+
+/* Utility Banners */
+.connection-banner {
+  background-color: var(--color-danger-subtle);
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-4);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--font-size-label);
+}
+
+.hidden {
+  display: none !important;
+}
+
+.text-accent { color: var(--color-accent) !important; }
+.text-success { color: var(--color-success) !important; }
+.text-warning { color: var(--color-warning) !important; }
+.text-danger { color: var(--color-danger) !important; }
+.text-secondary { color: var(--color-text-secondary) !important; }
+.text-muted { color: var(--color-text-muted) !important; }
+
+/* Accessible reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
