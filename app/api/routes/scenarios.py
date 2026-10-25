@@ -1,7 +1,9 @@
 """Deterministic attack scenarios API endpoints."""
 
 from typing import Dict, Any
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
+
+from app.api.auth import verify_operator_access
 
 from app.api.schemas import (
     ScenarioExecutionResponse,
@@ -76,7 +78,7 @@ def list_available_scenarios() -> ScenariosListResponse:
     return ScenariosListResponse(scenarios=scenarios_list)
 
 
-@router.post("/{scenario_name}", response_model=ScenarioExecutionResponse)
+@router.post("/{scenario_name}", response_model=ScenarioExecutionResponse, dependencies=[Depends(verify_operator_access)])
 def execute_deterministic_scenario(scenario_name: str) -> ScenarioExecutionResponse:
     """Execute a controlled deterministic attack scenario through the live DefenderService pipeline."""
     scenario_input = scenario_name.lower().strip()

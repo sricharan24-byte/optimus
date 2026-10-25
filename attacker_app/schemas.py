@@ -161,3 +161,36 @@ class ExperimentRecord(BaseModel):
     detection_status: str
     classification: Optional[str] = None
     detection_delay_ms: Optional[float] = None
+
+
+class ExecuteAttackRequest(BaseModel):
+    """Explicit human approval payload for executing a pending proposal."""
+
+    proposal_id: Optional[str] = Field(
+        None,
+        description="ID of the pending proposal being explicitly approved (verified against active proposal).",
+    )
+    approved: bool = Field(
+        True,
+        description="Explicit human approval confirmation.",
+    )
+
+    model_config = ConfigDict(extra="forbid")
+
+
+class AttackerResetRequest(BaseModel):
+    """Granular reset request payload."""
+
+    scope: Literal["all", "attacker_only", "defender_only", "history_only"] = "all"
+
+    model_config = ConfigDict(extra="forbid")
+
+
+class TokenLoginRequest(BaseModel):
+    """Payload for establishing attacker browser session."""
+
+    token: str = Field(..., min_length=1, max_length=256, description="Attacker access token")
+
+    model_config = ConfigDict(extra="forbid")
+
+

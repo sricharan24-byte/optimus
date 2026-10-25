@@ -62,10 +62,50 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
+    // In-memory attacker API key (NOT stored in localStorage for security)
+    let inMemoryAttackerKey = null;
+
+    async function attackerFetch(url, options = {}) {
+        const headers = { ...(options.headers || {}) };
+        if (inMemoryAttackerKey && !headers["Authorization"] && !headers["X-API-Key"]) {
+            headers["Authorization"] = `Bearer ${inMemoryAttackerKey}`;
+        }
+
+        let res = await fetch(url, {
+            credentials: "same-origin",
+            headers,
+            ...options,
+        });
+
+        if (res.status === 401) {
+            const entered = window.prompt("Attacker API key required. Please enter your API key for this session:");
+            if (entered && entered.trim()) {
+                inMemoryAttackerKey = entered.trim();
+                try {
+                    await fetch("/api/attacker/auth/login", {
+                        method: "POST",
+                        credentials: "same-origin",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ token: inMemoryAttackerKey }),
+                    });
+                } catch (e) {
+                    console.warn("Attacker cookie login failed:", e);
+                }
+                headers["Authorization"] = `Bearer ${inMemoryAttackerKey}`;
+                res = await fetch(url, {
+                    credentials: "same-origin",
+                    headers,
+                    ...options,
+                });
+            }
+        }
+        return res;
+    }
+
     // Check Status & Gateway Connection
     async function checkStatus() {
         try {
-            const res = await fetch("/api/attacker/status");
+            const res = await attackerFetch("/api/attacker/status");
             if (!res.ok) throw new Error("Status check failed");
             const data = await res.json();
 
@@ -97,7 +137,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Fetch Observation
     async function fetchObservation() {
         try {
-            const res = await fetch("/api/attacker/observation");
+            const res = await attackerFetch("/api/attacker/observation");
             if (!res.ok) throw new Error("Could not fetch observation");
             const data = await res.json();
 
@@ -123,7 +163,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 objective_hint: objectiveHintInput.value.trim() || null,
             };
 
-            const res = await fetch("/api/attacker/propose", {
+            const res = await attackerFetch("/api/attacker/propose", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
@@ -212,8 +252,14 @@ document.addEventListener("DOMContentLoaded", () => {
         btnExecuteProposal.textContent = "Transmitting to Gateway...";
 
         try {
-            const res = await fetch("/api/attacker/execute", {
+            const currentPropId = propId.textContent.trim();
+            const res = await attackerFetch("/api/attacker/execute", {
                 method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    proposal_id: currentPropId,
+                    approved: true,
+                }),
             });
 
             if (!res.ok) {
@@ -245,7 +291,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Discard Proposal
     async function discardProposal() {
         try {
-            await fetch("/api/attacker/discard", { method: "POST" });
+            await attackerFetch("/api/attacker/discard", { method: "POST" });
             proposalEmpty.classList.remove("hidden");
             proposalDetails.classList.add("hidden");
             proposalStatusBadge.textContent = "NO ACTIVE PROPOSAL";
@@ -258,7 +304,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Fetch History & Experiment Records
     async function fetchHistory() {
         try {
-            const res = await fetch("/api/attacker/experiments");
+            const res = await attackerFetch("/api/attacker/experiments");
             if (!res.ok) return;
             const items = await res.json();
 
@@ -321,8 +367,15 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         try {
-            const res = await fetch("/api/attacker/reset", { method: "POST" });
-            if (!res.ok) throw new Error("Reset failed");
+            const res = await attackerFetch("/api/attacker/reset", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ scope: "all" }),
+            });
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.detail || "Reset failed");
+            }
             alert("Simulation baseline and attacker state successfully reset.");
             proposalEmpty.classList.remove("hidden");
             proposalDetails.classList.add("hidden");

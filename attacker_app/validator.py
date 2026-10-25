@@ -10,12 +10,12 @@ from pydantic import ValidationError
 from attacker_app.schemas import AttackProposal, ProposalValidationResult
 
 VALID_TARGETS = {
-    "capacity_manipulation": ["free_capacity"],
+    "capacity_manipulation": ["free_capacity", "capacity"],
     "inventory_manipulation": ["inventory"],
-    "sensor_spoofing": ["temperature", "humidity"],
-    "replay_attack": ["inventory"],
-    "coordinated_weak": ["multi_metric"],
-    "multi_source": ["facility"],
+    "sensor_spoofing": ["temperature", "humidity", "environmental_sensors"],
+    "replay_attack": ["inventory", "telemetry_stream", "state", "observation"],
+    "coordinated_weak": ["multi_metric", "inventory_and_capacity"],
+    "multi_source": ["facility", "cross_subsystem", "multi_source"],
 }
 
 
@@ -55,11 +55,11 @@ def validate_proposal(
 
     # Validate value constraints
     if proposal_obj.attack_type == "sensor_spoofing":
-        if proposal_obj.value is None:
+        if proposal_obj.value is None and proposal_obj.target != "environmental_sensors":
             errors.append("sensor_spoofing requires a non-null float 'value'.")
-        elif proposal_obj.target == "temperature" and not (-50.0 <= proposal_obj.value <= 80.0):
+        elif proposal_obj.target == "temperature" and proposal_obj.value is not None and not (-50.0 <= proposal_obj.value <= 80.0):
             errors.append(f"Temperature value {proposal_obj.value} outside physical envelope [-50.0, 80.0].")
-        elif proposal_obj.target == "humidity" and not (0.0 <= proposal_obj.value <= 100.0):
+        elif proposal_obj.target == "humidity" and proposal_obj.value is not None and not (0.0 <= proposal_obj.value <= 100.0):
             errors.append(f"Humidity value {proposal_obj.value} outside physical envelope [0.0, 100.0].")
 
     if proposal_obj.attack_type in ["capacity_manipulation", "inventory_manipulation"]:

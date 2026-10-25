@@ -27,3 +27,19 @@ Thumbs.db
 # Secrets & Environment
 .env
 
+
+# Dataset raw archives and redundant extraction caches
+data/raw/hohenheim/*.zip
+data/raw/hohenheim/preprocessed/
+data/processed/
+*.db
+*.sqlite3
+
+# Generated evaluation dumps & benchmark scripts
+evaluation_results/
+evaluate*.py
+
+# Temporary development screenshots & scratch scripts
+screenshot*.png
+screenshot_*.png
+scratch/

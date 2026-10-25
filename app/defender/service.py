@@ -12,7 +12,14 @@ from typing import Any, Deque, Dict, List, Optional
 import uuid
 
 from app.config import settings
+from app.defender.audit import (
+    GENESIS_HASH,
+    AuditChainVerificationResponse,
+    compute_event_hash,
+    verify_audit_chain,
+)
 from app.defender.decision import JointDecisionEngine
+from app.defender.hardening import HardeningEngine
 from app.defender.ml_detector import MLDetector
 from app.defender.models import (
     SecurityAlert,
@@ -48,12 +55,14 @@ class DefenderService:
 
         self.history_size = history_size
         self.observation_history: Deque[WarehouseObservation] = collections.deque(maxlen=history_size)
-        self.events: Deque[SecurityEvent] = collections.deque(maxlen=500)
+        self.events: List[SecurityEvent] = []
+        self.latest_event_hash: str = GENESIS_HASH
         self.alerts: List[SecurityAlert] = []
         self.last_observation: Optional[WarehouseObservation] = None
         self.latest_analysis: Optional[SecurityAnalysisResult] = None
+        self.hardening_engine = HardeningEngine(service=self)
 
-        logger.info("Initialized DefenderService pipeline.")
+        logger.info("Initialized DefenderService pipeline with SHA-256 audit chaining and self-hardening loop.")
 
     def _log_event(
         self,
@@ -63,17 +72,35 @@ class DefenderService:
         step: int,
         metadata: Optional[Dict] = None,
     ) -> SecurityEvent:
-        """Internal helper to record an event to the audit stream."""
-        event = SecurityEvent(
-            timestamp=datetime.now(timezone.utc).isoformat(),
+        """Internal helper to record an event to the audit stream with SHA-256 hash chaining."""
+        timestamp = datetime.now(timezone.utc).isoformat()
+        event_metadata = metadata or {}
+        prev_hash = self.latest_event_hash
+
+        event_hash = compute_event_hash(
+            timestamp=timestamp,
             step=step,
             event_type=event_type,
             severity=severity,
             source="DefenderService",
             message=message,
-            metadata=metadata or {},
+            metadata=event_metadata,
+            prev_hash=prev_hash,
+        )
+
+        event = SecurityEvent(
+            timestamp=timestamp,
+            step=step,
+            event_type=event_type,
+            severity=severity,
+            source="DefenderService",
+            message=message,
+            metadata=event_metadata,
+            prev_hash=prev_hash,
+            event_hash=event_hash,
         )
         self.events.append(event)
+        self.latest_event_hash = event_hash
         return event
 
     def analyze(self, observation: WarehouseObservation) -> SecurityAnalysisResult:
@@ -138,23 +165,7 @@ class DefenderService:
                 step=step,
             )
 
-        # 5. Stage 3: Temporal Analysis
-        temporal_result = self.temporal_engine.update(
-            step=step,
-            semantic_result=semantic_result,
-            ml_result=ml_result,
-        )
-        self._log_event(
-            event_type="TEMPORAL_ANALYSIS",
-            severity="WARNING" if temporal_result.status != "STABLE" else "INFO",
-            message=(
-                f"Temporal state: {temporal_result.status} (persistence={temporal_result.persistence}, "
-                f"recurrence={temporal_result.recurrence}, score={temporal_result.temporal_score:.2f})."
-            ),
-            step=step,
-        )
-
-        # 6. Stage 4: Structural Analysis
+        # 5. Stage 3: Structural Analysis
         structural_result = self.structural_engine.analyze(
             semantic_result=semantic_result,
             ml_result=ml_result,
@@ -165,6 +176,23 @@ class DefenderService:
             message=(
                 f"Structural correlation: {structural_result.status} "
                 f"affecting {len(structural_result.affected_nodes)} entities."
+            ),
+            step=step,
+        )
+
+        # 6. Stage 4: Temporal Analysis
+        temporal_result = self.temporal_engine.update(
+            step=step,
+            semantic_result=semantic_result,
+            ml_result=ml_result,
+            structural_result=structural_result,
+        )
+        self._log_event(
+            event_type="TEMPORAL_ANALYSIS",
+            severity="WARNING" if temporal_result.status != "STABLE" else "INFO",
+            message=(
+                f"Temporal state: {temporal_result.status} (persistence={temporal_result.persistence}, "
+                f"recurrence={temporal_result.recurrence}, score={temporal_result.temporal_score:.2f})."
             ),
             step=step,
         )
@@ -205,6 +233,14 @@ class DefenderService:
                 message=f"Active alert triggered: {alert.alert_id} ({alert.classification}).",
                 step=step,
                 metadata={"alert_id": alert.alert_id},
+            )
+        elif decision.classification == "SUSPICIOUS":
+            self._log_event(
+                event_type="TRIAGE_FINDING",
+                severity="WARNING",
+                message=f"Suspicious activity requiring triage: {decision.explanation}",
+                step=step,
+                metadata={"risk_score": decision.risk_score},
             )
 
         # 9. Commit state & history
@@ -263,11 +299,21 @@ class DefenderService:
         }
 
     def reset(self) -> None:
-        """Reset service state, buffers, and component engines."""
+        """Reset service state, buffers, component engines, and audit chain root."""
         self.observation_history.clear()
-        self.events.clear()
         self.alerts.clear()
         self.last_observation = None
         self.latest_analysis = None
         self.temporal_engine.reset()
-        logger.info("Reset DefenderService state.")
+        self.hardening_engine.reset()
+        self.events.clear()
+        self.latest_event_hash = GENESIS_HASH
+        logger.info("Reset DefenderService state and audit chain root.")
+
+    def verify_audit_chain(self) -> AuditChainVerificationResponse:
+        """Cryptographically verify the in-memory security event audit chain.
+
+        Verifies that every event has a valid SHA-256 payload digest and that
+        the sequence from GENESIS_HASH to latest_event_hash is unbroken.
+        """
+        return verify_audit_chain(self.events, genesis_hash=GENESIS_HASH)

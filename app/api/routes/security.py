@@ -1,9 +1,18 @@
 """Security analysis, status, alerts, and audit event API endpoints."""
 
 from typing import List, Optional
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Depends, Query
 
-from app.api.schemas import ResetResponse, SecurityStatusResponse
+from app.api.auth import verify_operator_access
+from app.api.schemas import (
+    AuditChainVerificationResponse,
+    HardeningApproveRequest,
+    HardeningApproveResponse,
+    HardeningProposalsListResponse,
+    HardeningRollbackResponse,
+    ResetResponse,
+    SecurityStatusResponse,
+)
 from app.api.state import app_state
 from app.defender.models import (
     SecurityAlert,
@@ -68,7 +77,28 @@ def get_security_events(
     return app_state.defender.get_events(limit=limit)
 
 
-@router.post("/reset", response_model=ResetResponse)
+@router.get(
+    "/audit-chain/verify",
+    response_model=AuditChainVerificationResponse,
+    dependencies=[Depends(verify_operator_access)],
+)
+def verify_audit_chain() -> AuditChainVerificationResponse:
+    """Verify the cryptographic integrity of the in-memory security audit chain.
+
+    Validates that every security event is linked with SHA-256 hashes from genesis.
+    Detects any payload tampering, insertion, deletion, or reordering.
+
+    Security & Threat Model Disclosure:
+    This verification operates over the active in-memory audit chain of the DefenderService.
+    An in-memory chain does NOT survive service restarts and cannot by itself prevent an
+    attacker with full operating-system write access to the process memory from rewriting
+    the entire chain. Durable, immutable tamper-proofing requires an external write-once-read-many
+    (WORM) ledger or append-only remote syslog datastore.
+    """
+    return app_state.defender.verify_audit_chain()
+
+
+@router.post("/reset", response_model=ResetResponse, dependencies=[Depends(verify_operator_access)])
 def reset_security_state() -> ResetResponse:
     """Reset both the warehouse simulator and DefenderService pipeline to baseline state."""
     app_state.reset()
@@ -76,3 +106,79 @@ def reset_security_state() -> ResetResponse:
         success=True,
         message="Simulator and DefenderService successfully reset to initial baseline state.",
     )
+
+
+@router.get(
+    "/hardening/proposals",
+    response_model=HardeningProposalsListResponse,
+    dependencies=[Depends(verify_operator_access)],
+)
+def get_hardening_proposals() -> HardeningProposalsListResponse:
+    """List all proposed defensive adjustments, current parameter states, and missed attack reports."""
+    status = app_state.defender.hardening_engine.get_status()
+    proposals = app_state.defender.hardening_engine.get_proposals()
+    misses = app_state.defender.hardening_engine.get_misses()
+    return HardeningProposalsListResponse(
+        status=status,
+        proposals=proposals,
+        recent_misses=misses[-20:],
+    )
+
+
+@router.post(
+    "/hardening/proposals/{proposal_id}/approve",
+    response_model=HardeningApproveResponse,
+    dependencies=[Depends(verify_operator_access)],
+)
+def approve_hardening_proposal(
+    proposal_id: str,
+    body: HardeningApproveRequest,
+) -> HardeningApproveResponse:
+    """Explicit human operator approval and activation for a validated hardening proposal.
+
+    Guards against automated bypass: requires explicit operator approval before activating
+    any candidate defensive adjustments in the production detection pipeline.
+    """
+    from fastapi import HTTPException
+    if not body.approved:
+        raise HTTPException(
+            status_code=400,
+            detail="Explicit operator approval confirmation (approved=True) is required to activate hardening.",
+        )
+    try:
+        app_state.defender.hardening_engine.approve_proposal(
+            proposal_id=proposal_id,
+            operator_name=body.operator_name,
+        )
+        activated = app_state.defender.hardening_engine.activate_proposal(proposal_id=proposal_id)
+        return HardeningApproveResponse(
+            success=True,
+            proposal=activated,
+            message=f"Hardening proposal '{proposal_id}' successfully approved by {body.operator_name} and activated.",
+        )
+    except KeyError:
+        raise HTTPException(status_code=404, detail=f"Hardening proposal '{proposal_id}' not found.")
+    except (ValueError, PermissionError) as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.post(
+    "/hardening/rollback",
+    response_model=HardeningRollbackResponse,
+    dependencies=[Depends(verify_operator_access)],
+)
+def rollback_hardening(
+    proposal_id: Optional[str] = Query(default=None, description="Optional specific proposal ID to roll back"),
+) -> HardeningRollbackResponse:
+    """Roll back active hardening adjustments and restore baseline production parameters."""
+    from fastapi import HTTPException
+    try:
+        result = app_state.defender.hardening_engine.rollback(proposal_id=proposal_id)
+        return HardeningRollbackResponse(
+            success=True,
+            message="Hardening adjustment successfully rolled back to baseline configuration.",
+            restored_parameters=result.get("restored_parameters", {}),
+        )
+    except KeyError:
+        raise HTTPException(status_code=404, detail=f"Hardening proposal '{proposal_id}' not found.")
+

@@ -89,11 +89,21 @@ class AttackerAppState:
                 self.pending_observed_telemetry,
             )
 
-    def execute_pending_proposal(self) -> AttackFeedback:
+    def execute_pending_proposal(
+        self, proposal_id: Optional[str] = None, approved: bool = True
+    ) -> AttackFeedback:
         """Human-in-the-loop: Send approved pending proposal to the gateway."""
         with self._lock:
+            if not approved:
+                raise ValueError("Proposal execution rejected: explicit human approval confirmation is required.")
+
             if not self.pending_proposal:
                 raise ValueError("No pending attack proposal to execute.")
+
+            if proposal_id and self.pending_proposal_id and proposal_id != self.pending_proposal_id:
+                raise ValueError(
+                    f"Proposal ID mismatch: specified '{proposal_id}' but active pending proposal is '{self.pending_proposal_id}'."
+                )
 
             if not self.pending_validation or not self.pending_validation.valid:
                 raise ValueError("Pending proposal failed local validation and cannot be executed.")
@@ -160,37 +170,101 @@ class AttackerAppState:
             self.pending_observed_telemetry = None
             self.pending_validation = None
 
-    def reset(self) -> Dict[str, Any]:
-        """Reset Part 1 Attack Gateway and local attacker history."""
+    def clear_history(self) -> Dict[str, Any]:
+        """Clear attacker proposal history and evaluation experiment logs."""
         with self._lock:
-            try:
-                gateway_res = self.gateway_client.reset_gateway()
-            except GatewayClientError:
-                gateway_res = {"success": True, "message": "Local reset (gateway offline)"}
-            self.current_observation = None
-            self.pending_proposal = None
-            self.pending_proposal_id = None
-            self.pending_planner_label = None
-            self.pending_strategy_rationale = None
-            self.pending_observed_telemetry = None
-            self.pending_validation = None
             self.history.clear()
             self.experiments.clear()
-            self._proposal_counter = 0
             self._experiment_counter = 0
-
-            # Pull clean baseline observation
-            try:
-                self.fetch_observation()
-            except Exception:
-                pass
-
             return {
                 "success": True,
-                "gateway_response": gateway_res,
                 "history_cleared": True,
                 "experiments_cleared": True,
             }
+
+    def reset_attacker(self) -> Dict[str, Any]:
+        """Reset attacker local state, pending proposals, and history."""
+        with self._lock:
+            self.discard_pending_proposal()
+            self.clear_history()
+            self.current_observation = None
+            self._proposal_counter = 0
+            return {
+                "success": True,
+                "attacker_reset": True,
+            }
+
+    def reset_defender(self) -> Dict[str, Any]:
+        """Reset Part 1 warehouse simulator and defender pipeline via Attack Gateway."""
+        gateway_res = self.gateway_client.reset_gateway()
+        return {
+            "success": True,
+            "defender_reset": True,
+            "gateway_response": gateway_res,
+        }
+
+    def reset(self, scope: str = "all") -> Dict[str, Any]:
+        """Reset simulation environment based on specified scope with accurate reporting."""
+        with self._lock:
+            if scope == "history_only":
+                res = self.clear_history()
+                res["scope"] = "history_only"
+                return res
+
+            if scope == "attacker_only":
+                res = self.reset_attacker()
+                res["scope"] = "attacker_only"
+                return res
+
+            if scope == "defender_only":
+                try:
+                    res = self.reset_defender()
+                    res["scope"] = "defender_only"
+                    return res
+                except GatewayClientError as e:
+                    return {
+                        "success": False,
+                        "scope": "defender_only",
+                        "error": str(e),
+                        "message": f"Defender Gateway reset failed: {e}",
+                    }
+
+            # scope == "all"
+            gateway_res = None
+            gateway_success = False
+            gateway_err = None
+            try:
+                gateway_res = self.gateway_client.reset_gateway()
+                gateway_success = True
+            except GatewayClientError as e:
+                gateway_err = str(e)
+
+            # Local attacker state is always cleaned
+            self.reset_attacker()
+
+            if gateway_success:
+                try:
+                    self.fetch_observation()
+                except Exception:
+                    pass
+
+                return {
+                    "success": True,
+                    "scope": "all",
+                    "attacker_reset": True,
+                    "gateway_success": True,
+                    "gateway_response": gateway_res,
+                    "message": "Complete simulation (Defender & Attacker) successfully reset to baseline.",
+                }
+            else:
+                return {
+                    "success": False,
+                    "scope": "all",
+                    "attacker_reset": True,
+                    "gateway_success": False,
+                    "gateway_error": gateway_err,
+                    "message": f"Attacker state reset locally, but Defender Gateway reset failed: {gateway_err}",
+                }
 
 
 # Singleton instance for the attacker application

@@ -5,6 +5,7 @@ the external Part 2 AI Attacker requests simulated attacks and receives controll
 No internal DefenderService or simulator state is exposed.
 """
 
+import hmac
 import logging
 import os
 import threading
@@ -39,6 +40,7 @@ def verify_gateway_token(authorization: Optional[str] = Header(None)) -> str:
     Enforces that every /api/attacker/* request provides a valid Bearer token
     matching the server-configured ATTACK_GATEWAY_TOKEN environment variable.
     Returns HTTP 401 if missing, malformed, or invalid.
+    Uses constant-time comparison to prevent timing attacks.
     """
     configured_token = os.getenv("ATTACK_GATEWAY_TOKEN") or settings.ATTACK_GATEWAY_TOKEN
     if not configured_token:
@@ -61,7 +63,7 @@ def verify_gateway_token(authorization: Optional[str] = Header(None)) -> str:
             headers={"WWW-Authenticate": "Bearer"},
         )
     token = parts[1].strip()
-    if token != configured_token:
+    if not hmac.compare_digest(token, configured_token):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or unauthorized gateway token.",
@@ -142,15 +144,27 @@ def execute_attacker_attack(request: Request, body: AttackerAttackRequest) -> At
 
         # 3. Translate validated request into existing controlled scenario
         attack_type = body.attack_type
+        target = body.target
         if attack_type == "capacity_manipulation":
-            val = body.value if body.value is not None else 40.0
-            attacked_obs = inject_capacity_manipulation(base_obs, reported_free_capacity=val)
+            if target == "capacity":
+                val = body.value if body.value is not None else 30.0
+                attacked_obs = inject_capacity_manipulation(base_obs, total_capacity=val)
+            else:
+                val = body.value if body.value is not None else 40.0
+                attacked_obs = inject_capacity_manipulation(base_obs, reported_free_capacity=val)
         elif attack_type == "inventory_manipulation":
             val = body.value if body.value is not None else 25.0
             attacked_obs = inject_inventory_manipulation(base_obs, manipulated_inventory=val)
         elif attack_type == "sensor_spoofing":
-            val = body.value if body.value is not None else 28.0
-            attacked_obs = inject_sensor_spoofing(base_obs, spoofed_temperature=val, spoofed_humidity=95.0)
+            if target == "temperature":
+                val = body.value if body.value is not None else 28.0
+                attacked_obs = inject_sensor_spoofing(base_obs, spoofed_temperature=val, spoofed_humidity=None)
+            elif target == "humidity":
+                val = body.value if body.value is not None else 95.0
+                attacked_obs = inject_sensor_spoofing(base_obs, spoofed_temperature=None, spoofed_humidity=val)
+            else:  # environmental_sensors
+                temp_val = body.value if body.value is not None else 28.0
+                attacked_obs = inject_sensor_spoofing(base_obs, spoofed_temperature=temp_val, spoofed_humidity=95.0)
         elif attack_type == "replay_attack":
             if app_state.warehouse.step_count <= 1:
                 evolved = app_state.warehouse.step(inbound=3.0, outbound=0.0)
@@ -178,6 +192,19 @@ def execute_attacker_attack(request: Request, body: AttackerAttackRequest) -> At
         # 5. Formulate restricted feedback (hides internal pipeline details)
         classification = analysis.decision.classification
         detection_status = "DETECTED" if classification != "NORMAL" else "UNDETECTED"
+
+        # Record missed attack in defender's self-hardening engine without leaking state or auto-activating
+        if detection_status == "UNDETECTED":
+            miss_report = app_state.defender.hardening_engine.record_miss(
+                observation=attacked_obs,
+                analysis=analysis,
+                attack_type=attack_type,
+                target=body.target,
+                value=body.value,
+                step=attacked_obs.step,
+            )
+            # Generate candidate proposal (held in PENDING_VALIDATION; operator approval strictly required)
+            app_state.defender.hardening_engine.generate_proposal(miss_report)
 
         expose_classification = (
             os.getenv("GATEWAY_EXPOSE_CLASSIFICATION", "").lower() in ("true", "1", "yes")

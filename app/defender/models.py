@@ -131,7 +131,7 @@ class SecurityAlert(BaseModel):
 
 
 class SecurityEvent(BaseModel):
-    """Audit event for the security event stream timeline."""
+    """Audit event for the security event stream timeline with cryptographic SHA-256 chaining."""
 
     timestamp: str = Field(..., description="UTC ISO timestamp of event")
     step: int = Field(default=0, description="Simulation step number")
@@ -140,6 +140,36 @@ class SecurityEvent(BaseModel):
     source: str = Field(default="DefenderService", description="Source component")
     message: str = Field(..., description="Human-readable event description")
     metadata: Dict[str, Any] = Field(default_factory=dict, description="Auxiliary event metadata")
+    prev_hash: str = Field(
+        default="",
+        description="SHA-256 hash of preceding event in the audit chain, or genesis hash",
+    )
+    event_hash: str = Field(
+        default="",
+        description="Cryptographic SHA-256 hash of canonical event payload including prev_hash",
+    )
+
+    def compute_hash(self) -> str:
+        """Compute the canonical SHA-256 digest for this event payload."""
+        from app.defender.audit import compute_event_hash
+        return compute_event_hash(
+            timestamp=self.timestamp,
+            step=self.step,
+            event_type=self.event_type,
+            severity=self.severity,
+            source=self.source,
+            message=self.message,
+            metadata=self.metadata,
+            prev_hash=self.prev_hash,
+        )
+
+    def verify_hash(self) -> bool:
+        """Verify that the stored event_hash matches the computed canonical hash."""
+        import hmac
+        if not self.event_hash:
+            return False
+        expected = self.compute_hash()
+        return hmac.compare_digest(self.event_hash, expected)
 
 
 class SecurityAnalysisResult(BaseModel):
